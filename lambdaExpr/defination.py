@@ -222,7 +222,7 @@ class scoped1R(object):
 	def __init__(self, node):
 		self.type = node.tag
 		self.indexs = get_index(node)
-		self.expression = None
+		self.expression = []
 		assert len(node) == 2
 		for subnode in node[1:]:
 			if subnode.tag == "drs":
