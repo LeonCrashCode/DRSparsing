@@ -110,5 +110,4 @@ for root, dirs, files in os.walk("data"):
 		print "===", filename, der
 		process_der(child)
 		der += 1
-		exit()
 
