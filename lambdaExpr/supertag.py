@@ -8,7 +8,7 @@ from defination import *
 import types
 
 def general(token, expre):
-	if type(expre) == types.StringType:
+	if type(expre) == types.StringType or type(expre) == types.UnicodeType:
 		if expre == token:
 			return "LEMMA"
 		return expre
@@ -99,7 +99,7 @@ def process_der(parent):
 		print parent[0].tag
 		assert False, "unrecognized tag in der"
 
-for root, dirs, files in os.walk("data"):
+for root, dirs, files in os.walk("data/p14/d0559"):
 	if len(root.split("/")) != 3:
 		continue
 	tree = ET.parse(root+"/en.der.xml")
