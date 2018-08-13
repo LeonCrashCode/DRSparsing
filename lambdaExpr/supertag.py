@@ -63,7 +63,7 @@ def process_rule(parent):
 					supertag = lam(cc[0])
 					d["sem"] = supertag.serialization()
 			d["sem"] = general(d["lemma"], d["sem"])
-			print "\t".join([d["token"], d["lemma"], d["pos"], d["cat"], json.dumps(d["sem"])])
+			print "\t".join([d["token"].encode("utf-8"), d["lemma"].encode("utf-8"), d["pos"], d["cat"], json.dumps(d["sem"]).encode("utf-8")])
 
 	
 
@@ -82,7 +82,7 @@ def process_lex(parent):
 			supertag = lam(child[0])
 			d["sem"] = supertag.serialization()
 		d["sem"] = general(d["lemma"], d["sem"])
-	print "\t".join([d["token"], d["lemma"], d["pos"], d["cat"], json.dumps(d["sem"])])
+	print "\t".join([d["token"].encode("utf-8"), d["lemma"].encode("utf-8"), d["pos"], d["cat"], json.dumps(d["sem"]).encode("utf-8")])
 	assert find
 
 def process_der(parent):
@@ -110,4 +110,3 @@ for root, dirs, files in os.walk("data"):
 		print "===", filename, der
 		process_der(child)
 		der += 1
-
