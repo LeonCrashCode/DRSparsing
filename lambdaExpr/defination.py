@@ -7,6 +7,7 @@ class alfa(object):
 	def __init__(self, node):
 		self.type = "alfa"
 		assert node.tag == "alfa"
+		self.label = node.attrib["type"]
 		self.expression = []
 		for subnode in node:
 			if subnode.tag == "drs":
@@ -21,7 +22,7 @@ class alfa(object):
 				print subnode.tag
 				assert False, "unrecognized node"
 	def serialization(self):
-		return {"type": self.type, "expression": [expr.serialization() for expr in self.expression]}
+		return {"type": self.type, "label": self.label, "expression": [expr.serialization() for expr in self.expression]}
 
 
 class app(object):
