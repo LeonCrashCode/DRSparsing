@@ -99,7 +99,7 @@ def process_der(parent):
 		print parent[0].tag
 		assert False, "unrecognized tag in der"
 
-for root, dirs, files in os.walk("data/p14/d0559"):
+for root, dirs, files in os.walk("data"):
 	if len(root.split("/")) != 3:
 		continue
 	tree = ET.parse(root+"/en.der.xml")
