@@ -81,7 +81,7 @@ def process_lex(parent):
 			find = True
 			supertag = lam(child[0])
 			d["sem"] = supertag.serialization()
-		d["sem"] = general(d["lemma"], d["sem"])
+	d["sem"] = general(d["lemma"], d["sem"])
 	print "\t".join([d["token"].encode("utf-8"), d["lemma"].encode("utf-8"), d["pos"], d["cat"], json.dumps(d["sem"]).encode("utf-8")])
 	assert find
 
