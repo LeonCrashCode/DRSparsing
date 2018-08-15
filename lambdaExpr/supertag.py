@@ -4,7 +4,7 @@ import xml.etree.ElementTree as ET
 filename = ""
 der = 0
 import json
-from defination import *
+from defination import DRSnode
 import types
 
 def general(token, expre):
@@ -15,10 +15,7 @@ def general(token, expre):
 
 	elif type(expre) == types.DictType:
 		for key in expre.keys():
-			if key == "indexs":
-				expre[key] = None
-			else:
-				expre[key] = general(token,expre[key])
+			expre[key] = general(token,expre[key])
 		return expre
 	elif type(expre) == types.ListType:
 		for i in range(len(expre)):
@@ -60,7 +57,8 @@ def process_rule(parent):
 					d["cat"] = process_cat(cc[0])
 				if cc.tag == "sem":
 					find = True
-					supertag = lam(cc[0])
+					supertag = DRSnode()
+					supertag.init_from_xml(cc[0])
 					d["sem"] = supertag.serialization()
 			d["sem"] = general(d["lemma"], d["sem"])
 			print "\t".join([d["token"].encode("utf-8"), d["lemma"].encode("utf-8"), d["pos"], d["cat"], json.dumps(d["sem"]).encode("utf-8")])
@@ -79,7 +77,8 @@ def process_lex(parent):
 			d["cat"] = process_cat(child[0])
 		if child.tag == "sem":
 			find = True
-			supertag = lam(child[0])
+			supertag = DRSnode()
+			supertag.init_from_xml(child[0])
 			d["sem"] = supertag.serialization()
 	d["sem"] = general(d["lemma"], d["sem"])
 	print "\t".join([d["token"].encode("utf-8"), d["lemma"].encode("utf-8"), d["pos"], d["cat"], json.dumps(d["sem"]).encode("utf-8")])

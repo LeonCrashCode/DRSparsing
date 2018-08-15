@@ -7,7 +7,7 @@ def get_index(node):
 			for cc in subnode:
 				index.append(cc.text[1:])
 	if len(index) == 0:
-		return None
+		return []
 	return index
 
 def normal(r):

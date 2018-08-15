@@ -4,7 +4,7 @@ import xml.etree.ElementTree as ET
 filename = ""
 der = 0
 import json
-from defination import *
+from defination import DRSnode
 
 def process_cat(parent):
 	if parent.tag == "atomic":
@@ -35,7 +35,8 @@ def process_binaryrule(parent):
 
 	while i < len(parent):
 		if parent[i].tag == "sem":
-			supertag = lam(parent[i][0])
+			supertag = DRSnode()
+			supertag.init_from_xml(parent[i][0])
 			List.append(json.dumps(supertag.serialization()))
 			break
 		i += 1
@@ -50,7 +51,8 @@ def process_binaryrule(parent):
 					List.append(process_cat(child[0]))
 				if child.tag == "sem":
 					find = True
-					supertag = lam(child[0])
+					supertag = DRSnode()
+					supertag.init_from_xml(child[0])
 					List.append(json.dumps(supertag.serialization()))
 					break
 			assert find
@@ -65,7 +67,8 @@ def process_binaryrule(parent):
 					List.append(process_cat(child[0]))
 				if child.tag == "sem":
 					find = True
-					supertag = lam(child[0])
+					supertag = DRSnode()
+					supertag.init_from_xml(child[0])
 					List.append(json.dumps(supertag.serialization()))
 					break
 			assert find
@@ -101,7 +104,8 @@ def process_unaryrule(parent):
 
 	while i < len(parent):
 		if parent[i].tag == "sem":
-			supertag = lam(parent[i][0])
+			supertag = DRSnode()
+			supertag.init_from_xml(parent[i][0])
 			List.append(json.dumps(supertag.serialization()))
 			break
 		i += 1
@@ -116,7 +120,8 @@ def process_unaryrule(parent):
 					List.append(process_cat(child[0]))
 				if child.tag == "sem":
 					find = True
-					supertag = lam(child[0])
+					supertag = DRSnode()
+					supertag.init_from_xml(child[0])
 					List.append(json.dumps(supertag.serialization()))
 					break
 			assert find
@@ -144,7 +149,8 @@ def process_lex(parent):
 			print process_cat(child[0])
 		if child.tag == "sem":
 			find = True
-			supertag = lam(child[0])
+			supertag = DRSnode()
+			supertag.init_from_xml(child[0])
 			print json.dumps(supertag.serialization())	
 			break
 	assert find
