@@ -5,7 +5,7 @@ def get_index(node):
 	for subnode in node:
 		if subnode.tag == "indexlist":
 			for cc in subnode:
-				index.append(cc.text[1:])
+				index.append(int(cc.text[1:]))
 	if len(index) == 0:
 		return []
 	return index
@@ -54,3 +54,31 @@ def equals(expre1, expre2):
 		assert False, "unrecognized type" 
 	return True	
 
+import re
+
+def normal_variables(expre, start="v"):
+	p = re.compile("^v[0-9]+?$")
+	vl = []
+	print expre
+	def normalization(expre):
+		if type(expre) == types.StringType or type(expre) == types.UnicodeType:
+			if p.match(expre):
+				if expre in vl:
+					return start + str(vl.index(expre) + 1)
+				else:
+					vl.append(expre)
+					return start + str(len(vl))
+			else:
+				return expre
+		elif type(expre) == types.ListType:
+			for i in range(len(expre)):
+				expre[i] = normalization(expre[i])
+			return expre
+		elif type(expre) == types.DictType:
+			for key in expre.keys():
+				expre[key] = normalization(expre[key])
+			return expre
+		else:
+			print type(expre)
+			assert False, "unrecognized type"
+	return normalization(expre)

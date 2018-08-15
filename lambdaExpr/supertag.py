@@ -8,7 +8,7 @@ from defination import DRSnode
 import types
 
 def general(token, expre):
-	if type(expre) == types.StringType or type(expre) == types.UnicodeType:
+	if type(expre) == types.StringType or type(expre) == types.UnicodeType or type(expre) == types.IntType:
 		if expre == token:
 			return "LEMMA"
 		return expre
