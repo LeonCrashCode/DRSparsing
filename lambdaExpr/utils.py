@@ -27,24 +27,36 @@ def normal(r):
 
 def equals(expre1, expre2):
 	if type(expre1) != type(expre2):
+		print type(expre1)
+		print type(expre2)
 		return False
 	t = type(expre1)
 	if t == types.NoneType:
 		if expre1 != expre2:
+			print expre1
+			print expre2
 			return False
-	elif t == types.StringType or t == types.UnicodeType:
+	elif t == types.StringType or t == types.UnicodeType or t == types.IntType:
 		if expre1 != expre2:
+			print expre1
+			print expre2
 			return False
 	elif t == types.DictType:
 		if len(expre1) != len(expre2):
+			print expre1
+			print expre2
 			return False
 		for key in expre1.keys():
 			if key not in expre2:
+				print expre1
+				print expre2
 				return False
 			if not equals(expre1[key], expre2[key]):
 				return False
 	elif t == types.ListType:
 		if len(expre1) != len(expre2):
+			print expre1
+			print expre2
 			return False
 		for i in range(len(expre1)):
 			if not equals(expre1[i], expre2[i]):
@@ -56,29 +68,23 @@ def equals(expre1, expre2):
 
 import re
 
-def normal_variables(expre, start="v"):
+def normal_variables(node, start="v"):
 	p = re.compile("^v[0-9]+?$")
 	vl = []
-	print expre
-	def normalization(expre):
-		if type(expre) == types.StringType or type(expre) == types.UnicodeType:
-			if p.match(expre):
-				if expre in vl:
-					return start + str(vl.index(expre) + 1)
-				else:
-					vl.append(expre)
-					return start + str(len(vl))
+	def normal(a):
+		assert type(a) == types.StringType or type(a) == types.UnicodeType
+		if p.match(a):
+			if a in vl:
+				return start + str(vl.index(a) + 1)
 			else:
-				return expre
-		elif type(expre) == types.ListType:
-			for i in range(len(expre)):
-				expre[i] = normalization(expre[i])
-			return expre
-		elif type(expre) == types.DictType:
-			for key in expre.keys():
-				expre[key] = normalization(expre[key])
-			return expre
-		else:
-			print type(expre)
-			assert False, "unrecognized type"
-	return normalization(expre)
+				vl.append(a)
+				return start + str(len(vl)) 
+		return a
+	def normalization(node):
+		node.text = normal(node.text)
+		for k in node.attrib.keys():
+			node.attrib[k] = normal(node.attrib[k])
+		for i in range(len(node.expression)):
+			node.expression[i] = normalization(node.expression[i])
+		return node
+	return normalization(node)

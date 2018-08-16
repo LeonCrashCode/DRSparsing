@@ -2,30 +2,33 @@ import sys
 import types
 import json
 from utils import normal_variables
+from utils import equals
 from defination import DRSnode
 def ascii_encode_dict(data):
     ascii_encode = lambda x: x.encode('utf-8') if isinstance(x, unicode) else x 
     return dict(map(ascii_encode, pair) for pair in data.items())
 
-def ftr(expre):
-	expre_lam = DRSnode()
-	expre_lam.type = "lam"
+def ftr(node):
+	node_lam = DRSnode()
+	node_lam.type = "lam"
 
-	expre_v1 = DRSnode()
-	expre_v1.type = "var"
-	expre_v1.text = "v0"
-
-	expre_lam.expression.append(expre_v1)
-
-	expre_app = DRSnode()
-	expre_app.type = "app"
-	expre_app.expression.append(expre_v1)
-	expre_app.expression.append(expre)
-
-	expre_lam.expression.append(expre_app)
+	node_var = DRSnode()
+	node_var.type = "var"
+	node_var.text = "v0"
+	node_lam.expression.append(node_var)
 
 
-	return normal_variables(expre_lam.serialization(), "v")
+	node_app = DRSnode()
+	node_app.type = "app"
+	node_var = DRSnode()
+	node_var.type = "var"
+	node_var.text = "v0"
+	node_app.expression.append(node_var)
+	node_app.expression.append(node)
+
+	node_lam.expression.append(node_app)
+
+	return normal_variables(node_lam, "v")
 
 if __name__ == "__main__":
 	L = []
@@ -39,8 +42,9 @@ if __name__ == "__main__":
 			source_DRSnode = DRSnode()
 			source_DRSnode.unserialization(source)
 			output = ftr(source_DRSnode)
-			print json.dumps(output)
-			exit(1)
+			
+			if not equals(target, output.serialization()):
+				exit(1)
 		else:
 			L.append(line)
 	
