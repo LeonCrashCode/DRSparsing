@@ -7,7 +7,8 @@ import json
 from defination import DRSnode
 import types
 
-
+import re
+p = re.complie("\d")
 def general(token, expre):
 	if type(expre) == types.StringType or type(expre) == types.UnicodeType or type(expre) == types.IntType:
 		if expre == token:
@@ -18,11 +19,7 @@ def general(token, expre):
 		if "type" in expre and expre["type"] == "card":
 			expre["attrib"]["value"] = "NUMBER"
 		if "type" in expre and expre["type"] == "date":
-			for i in range(len(expre["text"])):
-				if expre["text"][i] in ["X", "+", "-"]:
-					pass
-				else:
-					expre["text"][i] = "0"
+			expre["text"] = p.sub("0",expre["text"])
 		for key in expre.keys():
 			if key == "indexs":
 				if len(expre[key]) != 0:
