@@ -48,6 +48,9 @@ if __name__ == "__main__":
 			#print json.dumps(output.serialization())
 			if L[3] == json.dumps(output.serialization()):
 				eq += 1
+			else:
+				print "\n".join(L)
+				print 
 			total += 1
 			L = []
 		else:
