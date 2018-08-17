@@ -57,7 +57,7 @@ def equals(expre1, expre2):
 import re
 
 def normal_variables(node, start="v"):
-	p = re.compile("^v[0-9]+?$")
+	p = re.compile("^"+start+"[0-9]+?$")
 	vl = []
 	def normal(a):
 		assert type(a) == types.StringType or type(a) == types.UnicodeType

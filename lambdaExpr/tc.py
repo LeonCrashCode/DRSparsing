@@ -2,7 +2,6 @@ import sys
 import types
 import json
 from utils import normal_variables
-from utils import 
 from defination import DRSnode
 def ascii_encode_dict(data):
     ascii_encode = lambda x: x.encode('utf-8') if isinstance(x, unicode) else x 
@@ -21,10 +20,18 @@ def tc1(node):
 	node_app.expression.append(node_var1)
 	node_app.expression.append(node_var2)
 
+	node_merge = DRSnode()
+	node_merge.type = "merge"
+
 	node.modify_attrib("v1", "x0")
-	node.add_variable("x0")
+	node.add_variable("x0", True)
+	node = normal_variables(node, "x")
+
+	node_merge.expression.append(node.expression[1])
+	node_merge.expression.append(node_app)
+	node.expression[1] = node_merge
 	
-	return normal_variables(node, "x")
+	return node
 
 if __name__ == "__main__":
 	L = []
@@ -36,11 +43,13 @@ if __name__ == "__main__":
 			source = json.loads(L[5], object_hook=ascii_encode_dict)
 			source_DRSnode = DRSnode()
 			source_DRSnode.unserialization(source)
-			output = ftr(source_DRSnode)
-			
+			output = tc1(source_DRSnode)
+			#print L[3]
+			#print json.dumps(output.serialization())
 			if L[3] == json.dumps(output.serialization()):
 				eq += 1
 			total += 1
+			L = []
 		else:
 			L.append(line)
 	print eq, total
