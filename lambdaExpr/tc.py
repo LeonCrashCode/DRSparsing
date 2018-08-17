@@ -10,8 +10,6 @@ def ascii_encode_dict(data):
 
 def tc1(node):
 
-	node = replace_attrib(node, "v1", "x1")
-
 	node_app = DRSnode()
 	node_app.type = "app"
 	node_var1 = DRSnode()
@@ -23,12 +21,15 @@ def tc1(node):
 	node_app.expression.append(node_var1)
 	node_app.expression.append(node_var2)
 
-	node_lam.expression.append(node_app)
-
-	return normal_variables(node_lam, "v")
+	node.modify_attrib("v1", "x0")
+	node.add_variable("x0")
+	
+	return normal_variables(node, "x")
 
 if __name__ == "__main__":
 	L = []
+	eq = 0
+	total = 0
 	for line in open(sys.argv[1]):
 		line = line.strip()
 		if line == "":
@@ -38,9 +39,11 @@ if __name__ == "__main__":
 			output = ftr(source_DRSnode)
 			
 			if L[3] == json.dumps(output.serialization()):
-				exit(1)
+				eq += 1
+			total += 1
 		else:
 			L.append(line)
+	print eq, total
 	
 
 

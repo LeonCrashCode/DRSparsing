@@ -76,3 +76,7 @@ def normal_variables(node, start="v"):
 			node.expression[i] = normalization(node.expression[i])
 		return node
 	return normalization(node)
+
+
+
+
