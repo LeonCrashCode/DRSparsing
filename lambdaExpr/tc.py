@@ -2,6 +2,7 @@ import sys
 import types
 import json
 from utils import normal_variables
+from utils import get_last_drs_node
 from defination import DRSnode
 def ascii_encode_dict(data):
     ascii_encode = lambda x: x.encode('utf-8') if isinstance(x, unicode) else x 
@@ -27,9 +28,10 @@ def tc1(node, start): #N->NP, merge
 	node.modify_attrib("v1", v)
 	node.add_variable(v, True)
 
-	node_merge.expression.append(node.expression[1])
+	node_last, idx = get_last_drs_node(node)
+	node_merge.expression.append(node_last.expression[idx])
 	node_merge.expression.append(node_app)
-	node.expression[1] = node_merge
+	node_last.expression[idx] = node_merge
 
 	normal_variables(node)
 
@@ -56,9 +58,10 @@ def tc2(node, start): #N->NP. alfa def
 	node.modify_attrib("v1", v)
 	node.add_variable(v, True)
 	
-	node_merge.expression.append(node.expression[1])
+	node_last, idx = get_last_drs_node(node)
+	node_merge.expression.append(node_last.expression[idx])
 	node_merge.expression.append(node_app)
-	node.expression[1] = node_merge
+	node_last.expression[idx] = node_merge
 
 	normal_variables(node)
 	return node

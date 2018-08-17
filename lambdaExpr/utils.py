@@ -88,6 +88,29 @@ def normal_variables(node):
 			normalization(node.expression[i])
 	normalization(node)
 
+def get_last_drs_node(node):
+
+	last_node = []
+	last_node_expr_idx = []
+	def travel(node, isfind, prev_type):
+
+		if isfind:
+			return
+		for subnode in node.expression[::-1]:
+			travel(subnode, isfind, node.type)
+			if isfind:
+				break
+		for idx in range(len(node.expression))[::-1]:
+			if node.type in ["", "lam", "constituent"] and node.expression[idx].type == "drs":
+				last_node.append(node)
+				last_node_expr_idx.append(idx)
+				isfind = True
+				break
+	travel(node, False, "")
+	assert len(last_node) == 1, "last drs node is not found"
+	return last_node[0], last_node_expr_idx[0]
+
+
 
 
 
