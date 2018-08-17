@@ -8,7 +8,7 @@ def ascii_encode_dict(data):
     ascii_encode = lambda x: x.encode('utf-8') if isinstance(x, unicode) else x 
     return dict(map(ascii_encode, pair) for pair in data.items())
 
-def ftr(node):
+def btr(node):
 	node_lam = DRSnode()
 	node_lam.type = "lam"
 
@@ -43,7 +43,7 @@ if __name__ == "__main__":
 			source = json.loads(L[5], object_hook=ascii_encode_dict)
 			source_DRSnode = DRSnode()
 			source_DRSnode.unserialization(source)
-			output = ftr(source_DRSnode)
+			output = btr(source_DRSnode)
 			
 			if equals(target, output.serialization()):
 				eq += 1
