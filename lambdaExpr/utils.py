@@ -27,36 +27,24 @@ def normal(r):
 
 def equals(expre1, expre2):
 	if type(expre1) != type(expre2):
-		print type(expre1)
-		print type(expre2)
 		return False
 	t = type(expre1)
 	if t == types.NoneType:
 		if expre1 != expre2:
-			print expre1
-			print expre2
 			return False
 	elif t == types.StringType or t == types.UnicodeType or t == types.IntType:
 		if expre1 != expre2:
-			print expre1
-			print expre2
 			return False
 	elif t == types.DictType:
 		if len(expre1) != len(expre2):
-			print expre1
-			print expre2
 			return False
 		for key in expre1.keys():
 			if key not in expre2:
-				print expre1
-				print expre2
 				return False
 			if not equals(expre1[key], expre2[key]):
 				return False
 	elif t == types.ListType:
 		if len(expre1) != len(expre2):
-			print expre1
-			print expre2
 			return False
 		for i in range(len(expre1)):
 			if not equals(expre1[i], expre2[i]):
