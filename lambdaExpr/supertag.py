@@ -7,6 +7,7 @@ import json
 from defination import DRSnode
 import types
 
+
 def general(token, expre):
 	if type(expre) == types.StringType or type(expre) == types.UnicodeType or type(expre) == types.IntType:
 		if expre == token:
@@ -14,8 +15,20 @@ def general(token, expre):
 		return expre
 
 	elif type(expre) == types.DictType:
+		if expre["type"] == "card":
+			expre["attrib"]["value"] = "NUMBER"
+		if expre["type"] == "date":
+			for i in range(len(expre["text"])):
+				if expre["text"][i] in ["X", "+", "-"]:
+					pass
+				else:
+					expre["text"][i] = "0"
 		for key in expre.keys():
-			expre[key] = general(token,expre[key])
+			if key == "indexs":
+				if len(expre[key]) != 0:
+					expre[key] = ["INDEX"]
+			else:
+				expre[key] = general(token,expre[key])
 		return expre
 	elif type(expre) == types.ListType:
 		for i in range(len(expre)):
