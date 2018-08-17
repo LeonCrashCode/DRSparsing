@@ -3,7 +3,8 @@ import json
 import sys
 def exist(supertag, supertag_cls):
 	for i, tag in enumerate(supertag_cls,0):
-		if equals(supertag, tag[0]):
+		#if equals(supertag, tag[0]):
+		if supertag == tag[0]:
 			return True, i
 	return False, -1
 
