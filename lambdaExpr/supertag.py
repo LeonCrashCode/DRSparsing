@@ -8,7 +8,7 @@ from defination import DRSnode
 import types
 
 import re
-p = re.complie("\d")
+p = re.compile("\d")
 def general(token, expre):
 	if type(expre) == types.StringType or type(expre) == types.UnicodeType or type(expre) == types.IntType:
 		if expre == token:
