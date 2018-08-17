@@ -80,7 +80,7 @@ if __name__ == "__main__":
 			if L[3] == json.dumps(source_DRSnode1.serialization()) or L[3] == json.dumps(source_DRSnode2.serialization()):
 				eq += 1
 			else:
-				#print "\n".join(L)
+				print "\n".join(L)
 				print 
 			total += 1
 			L = []
