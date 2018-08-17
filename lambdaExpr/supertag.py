@@ -15,9 +15,9 @@ def general(token, expre):
 		return expre
 
 	elif type(expre) == types.DictType:
-		if expre["type"] == "card":
+		if "type" in expre and expre["type"] == "card":
 			expre["attrib"]["value"] = "NUMBER"
-		if expre["type"] == "date":
+		if "type" in expre and expre["type"] == "date":
 			for i in range(len(expre["text"])):
 				if expre["text"][i] in ["X", "+", "-"]:
 					pass
