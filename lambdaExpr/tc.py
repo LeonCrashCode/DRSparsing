@@ -99,6 +99,7 @@ if __name__ == "__main__":
 
 			print "\n".join(L)
 			print
+			L = []
 		else:
 			L.append(line)
 	print eq, total
