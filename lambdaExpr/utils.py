@@ -56,26 +56,37 @@ def equals(expre1, expre2):
 
 import re
 
-def normal_variables(node, start="v"):
-	p = re.compile("^"+start+"[0-9]+?$")
-	vl = []
+def normal_variables(node):
+	ps = []
+	starts = ["b", "x", "e", "s", "t", "p", "k"]
+	for start in starts:
+		ps.append(re.compile("^"+start+"[0-9]+?$"))
+
+	vl = [[] for i in range(7)]
+
+	def match(a):
+		for i in range(7):
+			if ps[i].match(a):
+				return i
+		return -1
 	def normal(a):
 		assert type(a) == types.StringType or type(a) == types.UnicodeType
-		if p.match(a):
-			if a in vl:
-				return start + str(vl.index(a) + 1)
-			else:
-				vl.append(a)
-				return start + str(len(vl)) 
+		idx = match(a)
+		if idx == -1:
+			return a
+		if a in vl[idx]:
+			return starts[idx] + str(vl[idx].index(a) + 1)
+		else:
+			vl[idx].append(a)
+			return starts[idx] + str(len(vl[idx])) 
 		return a
 	def normalization(node):
 		node.text = normal(node.text)
 		for k in node.attrib.keys():
 			node.attrib[k] = normal(node.attrib[k])
 		for i in range(len(node.expression)):
-			node.expression[i] = normalization(node.expression[i])
-		return node
-	return normalization(node)
+			normalization(node.expression[i])
+	normalization(node)
 
 
 

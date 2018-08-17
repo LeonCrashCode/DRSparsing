@@ -28,7 +28,9 @@ def btr(node):
 
 	node_lam.expression.append(node_app)
 
-	return normal_variables(node_lam, "v")
+	normal_variables(node_lam)
+
+	return node_lam
 
 if __name__ == "__main__":
 	L = []
@@ -37,18 +39,24 @@ if __name__ == "__main__":
 	for line in open(sys.argv[1]):
 		line = line.strip()
 		if line == "":
+			total += 1
 			target = json.loads(L[3], object_hook=ascii_encode_dict)
 			target_DRSnode = DRSnode()
 			target_DRSnode.unserialization(target)
+			normal_variables(target_DRSnode)
+			target = json.dumps(target_DRSnode.serialization())
+
 			source = json.loads(L[5], object_hook=ascii_encode_dict)
 			source_DRSnode = DRSnode()
 			source_DRSnode.unserialization(source)
-			output = btr(source_DRSnode)
+			source_DRSnode = btr(source_DRSnode)
 			
-			if equals(target, output.serialization()):
+			if target == json.dumps(source_DRSnode.serialization()):
 				eq += 1
-			total += 1
-			L = []	
+				L = []
+				
+			print "\n".join(L)
+			print
 		else:
 			L.append(line)
 	print eq, total

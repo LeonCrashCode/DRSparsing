@@ -25,11 +25,13 @@ def tc1(node): #N->NP, merge
 
 	node.modify_attrib("v1", "x0")
 	node.add_variable("x0", True)
-	node = normal_variables(node, "x")
+	normal_variables(node)
 
 	node_merge.expression.append(node.expression[1])
 	node_merge.expression.append(node_app)
 	node.expression[1] = node_merge
+
+	return node
 
 def tc2(node): #N->NP. alfa def
 
@@ -50,13 +52,13 @@ def tc2(node): #N->NP. alfa def
 
 	node.modify_attrib("v1", "x0")
 	node.add_variable("x0", True)
-	node = normal_variables(node, "x")
+	normal_variables(node)
 
 	node_merge.expression.append(node.expression[1])
 	node_merge.expression.append(node_app)
 	node.expression[1] = node_merge
 
-
+	return node
 
 
 if __name__ == "__main__":
@@ -66,24 +68,37 @@ if __name__ == "__main__":
 	for line in open(sys.argv[1]):
 		line = line.strip()
 		if line == "":
-			source1 = json.loads(L[5], object_hook=ascii_encode_dict)
-			source_DRSnode1 = DRSnode()
-			source_DRSnode1.unserialization(source1)
-			tc1(source_DRSnode1)
-
-			source2 = json.loads(L[5], object_hook=ascii_encode_dict)
-			source_DRSnode2 = DRSnode()
-			source_DRSnode2.unserialization(source2)
-			tc2(source_DRSnode2)
-			#print json.dumps(output.serialization())
-
-			if L[3] == json.dumps(source_DRSnode1.serialization()) or L[3] == json.dumps(source_DRSnode2.serialization()):
-				eq += 1
-			else:
-				print "\n".join(L)
-				print 
 			total += 1
-			L = []
+			target = json.loads(L[3], object_hook=ascii_encode_dict)
+			target_DRSnode = DRSnode()
+			target_DRSnode.unserialization(target)
+			normal_variables(target_DRSnode)
+			target = json.dumps(target_DRSnode.serialization())
+
+			source = json.loads(L[5], object_hook=ascii_encode_dict)
+			source_DRSnode = DRSnode()
+			source_DRSnode.unserialization(source)
+			source_DRSnode = tc1(source_DRSnode)
+			change = json.dumps(source_DRSnode.serialization())
+
+			if target == change:
+				eq += 1
+				L = []
+				continue
+
+			source = json.loads(L[5], object_hook=ascii_encode_dict)
+			source_DRSnode = DRSnode()
+			source_DRSnode.unserialization(source)
+			source_DRSnode = tc2(source_DRSnode)
+			change = json.dumps(source_DRSnode.serialization())
+
+			if target == change:
+				eq += 1
+				L = []
+				continue
+
+			print "\n".join(L)
+			print
 		else:
 			L.append(line)
 	print eq, total
