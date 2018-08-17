@@ -75,6 +75,8 @@ if __name__ == "__main__":
 	for line in open(sys.argv[1]):
 		line = line.strip()
 		if line == "":
+			print "\n".join(L)
+			print
 			total += 1
 			target = json.loads(L[3], object_hook=ascii_encode_dict)
 			target_DRSnode = DRSnode()
@@ -126,8 +128,8 @@ if __name__ == "__main__":
 				L = []
 				continue
 
-			print "\n".join(L)
-			print
+			#print "\n".join(L)
+			#print
 			L = []
 		else:
 			L.append(line)
