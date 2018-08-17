@@ -58,14 +58,14 @@ import re
 
 def normal_variables(node):
 	ps = []
-	starts = ["b", "x", "e", "s", "t", "p", "k"]
+	starts = ["b", "x", "e", "s", "t", "p", "k", "v"]
 	for start in starts:
 		ps.append(re.compile("^"+start+"[0-9]+?$"))
 
-	vl = [[] for i in range(7)]
+	vl = [[] for i in range(8)]
 
 	def match(a):
-		for i in range(7):
+		for i in range(8):
 			if ps[i].match(a):
 				return i
 		return -1

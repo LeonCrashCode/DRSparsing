@@ -50,8 +50,9 @@ if __name__ == "__main__":
 			source_DRSnode = DRSnode()
 			source_DRSnode.unserialization(source)
 			source_DRSnode = btr(source_DRSnode)
+			change = json.dumps(source_DRSnode.serialization())
 			
-			if target == json.dumps(source_DRSnode.serialization()):
+			if target == change:
 				eq += 1
 				L = []
 				continue
