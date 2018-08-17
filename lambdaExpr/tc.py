@@ -30,8 +30,6 @@ def tc1(node): #N->NP, merge
 	node_merge.expression.append(node.expression[1])
 	node_merge.expression.append(node_app)
 	node.expression[1] = node_merge
-	
-	return node
 
 def tc2(node): #N->NP. alfa def
 
@@ -57,8 +55,6 @@ def tc2(node): #N->NP. alfa def
 	node_merge.expression.append(node.expression[1])
 	node_merge.expression.append(node_app)
 	node.expression[1] = node_merge
-	
-	return node
 
 
 
@@ -70,17 +66,21 @@ if __name__ == "__main__":
 	for line in open(sys.argv[1]):
 		line = line.strip()
 		if line == "":
-			source = json.loads(L[5], object_hook=ascii_encode_dict)
-			source_DRSnode = DRSnode()
-			source_DRSnode.unserialization(source)
-			output1 = tc1(source_DRSnode)
-			output2 = tc2(source_DRSnode)
-			#print L[3]
+			source1 = json.loads(L[5], object_hook=ascii_encode_dict)
+			source_DRSnode1 = DRSnode()
+			source_DRSnode1.unserialization(source1)
+			tc1(source_DRSnode1)
+
+			source2 = json.loads(L[5], object_hook=ascii_encode_dict)
+			source_DRSnode2 = DRSnode()
+			source_DRSnode2.unserialization(source2)
+			tc2(source_DRSnode2)
 			#print json.dumps(output.serialization())
-			if L[3] == json.dumps(output1.serialization()) or L[3] == json.dumps(output2.serialization()):
+
+			if L[3] == json.dumps(source_DRSnode1.serialization()) or L[3] == json.dumps(source_DRSnode2.serialization()):
 				eq += 1
 			else:
-				print "\n".join(L)
+				#print "\n".join(L)
 				print 
 			total += 1
 			L = []
