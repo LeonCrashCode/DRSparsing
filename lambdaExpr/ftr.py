@@ -54,6 +54,7 @@ if __name__ == "__main__":
 			if target == json.dumps(source_DRSnode.serialization()):
 				eq += 1
 				L = []
+				continue
 
 			print "\n".join(L)
 			print
