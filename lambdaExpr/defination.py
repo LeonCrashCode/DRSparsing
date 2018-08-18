@@ -43,9 +43,3 @@ class DRSnode(object):
 		for i in range(len(self.expression)):
 			self.expression[i].add_variable(to, flag)
 
-	def modify_attrib(self, fr, to):
-		for key in self.attrib:
-			if self.attrib[key] == fr:
-				self.attrib[key] = to
-		for i in range(len(self.expression)):
-			self.expression[i].modify_attrib(fr, to)

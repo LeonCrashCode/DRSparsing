@@ -88,25 +88,50 @@ def normal_variables(node):
 			normalization(node.expression[i])
 	normalization(node)
 
+def modify_attrib(node, fr, to):
+
+	last_node = []
+	last_node_expr_idx = []
+	def have_fr(node):
+		for key in node.attrib:
+			if node.attrib[key] == fr:
+				return True
+		for subnode in node.expression:
+			if have_fr(subnode):
+				return True
+		return False
+	def travel(node):
+		for key in node.attrib:
+			if node.attrib[key] == fr:
+				node.attrib[key] = to
+
+		for idx in range(len(node.expression))[::-1]:
+			if node.type in ["lam", "constituent"] and node.expression[idx].type == "drs" and len(last_node) == 0:
+				if have_fr(node.expression[idx]):
+					last_node.append(node)
+					last_node_expr_idx.append(idx)
+			travel(node.expression[idx])
+
+	travel(node)
+	assert len(last_node) == 1, "last drs node is not found"
+	return last_node[0], last_node_expr_idx[0]
 def get_last_drs_node(node):
 
 	last_node = []
 	last_node_expr_idx = []
-	def travel(node, isfind, prev_type):
-
-		if isfind:
-			return
+	def travel(node):
+		if len(last_node) == 1:
+			return 
 		for subnode in node.expression[::-1]:
-			travel(subnode, isfind, node.type)
-			if isfind:
+			travel(subnode, node.type)
+			if len(last_node) == 1:
 				break
 		for idx in range(len(node.expression))[::-1]:
-			if node.type in ["", "lam", "constituent"] and node.expression[idx].type == "drs":
+			if node.type in ["lam", "constituent"] and node.expression[idx].type == "drs" and len(last_node) == 0:
 				last_node.append(node)
 				last_node_expr_idx.append(idx)
-				isfind = True
 				break
-	travel(node, False, "")
+	travel(node)
 	assert len(last_node) == 1, "last drs node is not found"
 	return last_node[0], last_node_expr_idx[0]
 

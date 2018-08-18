@@ -2,7 +2,7 @@ import sys
 import types
 import json
 from utils import normal_variables
-from utils import get_last_drs_node
+from utils import modify_attrib
 from defination import DRSnode
 def ascii_encode_dict(data):
     ascii_encode = lambda x: x.encode('utf-8') if isinstance(x, unicode) else x 
@@ -25,10 +25,9 @@ def tc1(node, start): #N->NP, merge
 	node_merge = DRSnode()
 	node_merge.type = "merge"
 
-	node.modify_attrib("v1", v)
+	node_last, idx = modify_attrib(node, "v1", v)
 	node.add_variable(v, True)
 
-	node_last, idx = get_last_drs_node(node)
 	node_merge.expression.append(node_last.expression[idx])
 	node_merge.expression.append(node_app)
 	node_last.expression[idx] = node_merge
@@ -55,10 +54,9 @@ def tc2(node, start): #N->NP. alfa def
 	node_merge.type = "alfa"
 	node_merge.attrib = {"type": "def"}
 
-	node.modify_attrib("v1", v)
+	node_last, idx = modify_attrib(node, "v1", v)
 	node.add_variable(v, True)
 	
-	node_last, idx = get_last_drs_node(node)
 	node_merge.expression.append(node_last.expression[idx])
 	node_merge.expression.append(node_app)
 	node_last.expression[idx] = node_merge
@@ -75,8 +73,8 @@ if __name__ == "__main__":
 	for line in open(sys.argv[1]):
 		line = line.strip()
 		if line == "":
-			print "\n".join(L)
-			print
+			#print "\n".join(L)
+			#print
 			total += 1
 			target = json.loads(L[3], object_hook=ascii_encode_dict)
 			target_DRSnode = DRSnode()
@@ -128,8 +126,8 @@ if __name__ == "__main__":
 				L = []
 				continue
 
-			#print "\n".join(L)
-			#print
+			print "\n".join(L)
+			print
 			L = []
 		else:
 			L.append(line)
