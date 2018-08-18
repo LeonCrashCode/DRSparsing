@@ -32,14 +32,19 @@ class DRSnode(object):
 
 
 	def add_variable(self, to, flag):
-		if not flag:
-			return
-		if self.type == "drs":
-			node = DRSnode()
-			node.type = "dr"
-			node.attrib = {"name": to, "label": self.attrib["label"]}
-			self.expression[0].expression.insert(0, node)
-			flag = False
-		for i in range(len(self.expression)):
-			self.expression[i].add_variable(to, flag)
+
+		first_node = []
+		def travel(node):
+			if node.type == "drs" and len(first_node) == 0:
+				first_node.append(node)
+				return
+			for subnode in node.expression:
+				travel(subnode)
+		travel(self)
+
+		v = DRSnode()
+		v.type = "dr"
+		v.attrib = {"name": to, "label": first_node[0].attrib["label"]}
+
+		first_node[0].expression[0].expression.insert(0,v)
 

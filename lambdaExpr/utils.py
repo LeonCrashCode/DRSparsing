@@ -87,6 +87,19 @@ def normal_variables(node):
 		for i in range(len(node.expression)):
 			normalization(node.expression[i])
 	normalization(node)
+def add_variable(node, v):
+
+	first_node = []
+	def travel(node):
+		if node.type == "drs" and len(first_node) == 0:
+			first_node.append(node)
+			return
+		if len(first_node) == 1:
+			return
+		for subnode in node.expression:
+			travel(subnode)
+	travel(node)
+	first_node[0].expression[0].expression.insert(0, v)
 
 def modify_attrib(node, fr, to):
 

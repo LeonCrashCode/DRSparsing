@@ -88,11 +88,17 @@ if __name__ == "__main__":
 			source_DRSnode = tc1(source_DRSnode, "x")
 			change = json.dumps(source_DRSnode.serialization())
 
+			#l = ""
+			#for i in range(len(target)):
+			#	if target[i] == change[i]:
+			#		l += target[i]
+			#	else:
+			#		break
+			#print l
 			if target == change:
 				eq += 1
 				L = []
 				continue
-
 			source = json.loads(L[5], object_hook=ascii_encode_dict)
 			source_DRSnode = DRSnode()
 			source_DRSnode.unserialization(source)
