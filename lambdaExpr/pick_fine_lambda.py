@@ -12,7 +12,7 @@ for line in open(sys.argv[1]):
 	line = line.strip()
 	if line == "":
 		if L[1].split()[1] == sys.argv[2]:
-			if L[2] == "NP" and L[4] == "N":
+			if L[2] == "NP\\NP" and L[4] == "S[pss]\\NP":
 				print "\n".join(L[0:4])
 				#print tostring(json.loads(L[3], object_hook=ascii_encode_dict))
 				print "\n".join(L[4:6])
