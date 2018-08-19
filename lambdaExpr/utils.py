@@ -128,25 +128,8 @@ def modify_attrib(node, fr, to):
 	travel(node)
 	assert len(last_node) == 1, "last drs node is not found"
 	return last_node[0], last_node_expr_idx[0]
-def get_last_drs_node(node):
 
-	last_node = []
-	last_node_expr_idx = []
-	def travel(node):
-		if len(last_node) == 1:
-			return 
-		for subnode in node.expression[::-1]:
-			travel(subnode, node.type)
-			if len(last_node) == 1:
-				break
-		for idx in range(len(node.expression))[::-1]:
-			if node.type in ["lam", "constituent"] and node.expression[idx].type == "drs" and len(last_node) == 0:
-				last_node.append(node)
-				last_node_expr_idx.append(idx)
-				break
-	travel(node)
-	assert len(last_node) == 1, "last drs node is not found"
-	return last_node[0], last_node_expr_idx[0]
+
 
 
 

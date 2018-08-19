@@ -16,7 +16,7 @@ def main(filename):
 			sys.stderr.write(line+"\n")
 			continue
 		#supertag = json.loads(line.split("\t")[-1])
-		supertag = line.split("\t")[-1]
+		supertag = "|||".join(line.split("\t")[-2:])
 		f, i = exist(supertag, supertag_cls)
 		if f:
 			supertag_cls[i][-1] += 1

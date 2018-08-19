@@ -64,7 +64,10 @@ def tc2(node, start): #N->NP. alfa def
 	normal_variables(node)
 	return node
 
-
+def tc3(node):
+	node_lam = get_app_lam(node) #vi. @ lam_vj -> lam_vj
+	node_merge = get_merge(node_lam)
+	node_d
 
 if __name__ == "__main__":
 	L = []
