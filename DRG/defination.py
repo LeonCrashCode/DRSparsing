@@ -30,21 +30,5 @@ class DRSnode(object):
 	def serialization(self):
 		return {"type": self.type, "text": self.text, "attrib": self.attrib, "indexs": self.indexs, "expression": [expr.serialization() for expr in self.expression]}
 
-
-	def add_variable(self, to, flag):
-
-		first_node = []
-		def travel(node):
-			if node.type == "drs" and len(first_node) == 0:
-				first_node.append(node)
-				return
-			for subnode in node.expression:
-				travel(subnode)
-		travel(self)
-
-		v = DRSnode()
-		v.type = "dr"
-		v.attrib = {"name": to, "label": first_node[0].attrib["label"]}
-
-		first_node[0].expression[0].expression.insert(0,v)
+	
 

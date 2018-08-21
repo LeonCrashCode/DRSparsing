@@ -6,6 +6,17 @@ der = 0
 import json
 from defination import DRSnode
 
+def add_pointer(node, start):
+
+	index = [start]
+	def travel(n):
+		if n.type == "sdrs" or n.type == "sub":
+			n.attrib["label"] = "b"+str(index[0])
+			index[0] += 1
+		for sn in n.expression:
+			travel(sn)
+	travel(node)
+
 def process_cat(parent):
 	if parent.tag == "atomic":
 		if "feature" in parent.attrib:
@@ -37,6 +48,7 @@ def process_binaryrule(parent):
 		if parent[i].tag == "sem":
 			supertag = DRSnode()
 			supertag.init_from_xml(parent[i][0])
+			add_pointer(supertag, 1000)
 			List.append(json.dumps(supertag.serialization()))
 			break
 		i += 1
@@ -62,6 +74,7 @@ def process_unaryrule(parent):
 		if parent[i].tag == "sem":
 			supertag = DRSnode()
 			supertag.init_from_xml(parent[i][0])
+			add_pointer(supertag, 1000)
 			List.append(json.dumps(supertag.serialization()))
 			break
 		i += 1
@@ -81,6 +94,7 @@ def process_lex(parent):
 			find = True
 			supertag = DRSnode()
 			supertag.init_from_xml(child[0])
+			add_pointer(supertag, 1000)
 			print json.dumps(supertag.serialization())	
 			break
 	assert find

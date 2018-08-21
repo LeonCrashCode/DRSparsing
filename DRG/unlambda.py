@@ -9,7 +9,7 @@ def ascii_encode_dict(data):
 
 p = re.compile("^v[0-9]+$")
 
-def drg(node):
+def unlambda(node):
 	declared_variable = []
 	def getb(arg):
 		if arg in declared_variable:
@@ -83,7 +83,7 @@ def drg(node):
 		elif n.type == "sub":
 			for sn in n.expression:
 				assert len(sn.expression) == 1
-				print sn.expression[0].types
+				print sn.expression[0].type
 				assert sn.expression[0].type == "drs"
 				Tuples.append(" ".join([n.attrib["label"], "DRS", sn.attrib["label"]]))
 		for subnode in n.expression:
@@ -91,9 +91,60 @@ def drg(node):
 
 	travel(node)
 
+def have_complex_app(node):
+	stack = []
+	stack.append(node)
+	while len(stack) != 0:
+		if stack[0].type == "app":
+			assert len(stack[0].expression) == 2
+			if stack[0].expression[0].type != "var" or stack[0].expression[1].type != "var":
+				return True
+		for subnode in stack[0].expression:
+			stack.append(subnode)
+		stack = stack[1:]
+	return False
+
+def rule_out_app(node):
+	
+	def travel(n):
+		l = []
+		for i, sn in enumerate(n.expression):
+			if sn.type == "app":
+				l.append(i)
+		n.expression = [i for j, i in enumerate(n.expression) if j not in l]
+		for sn in n.expression:
+			travel(sn)
+	travel(node)
+
+def rule_out_lam(node):
+
+	while True:
+		if node.type == "lam":
+			node = node.expression[1]
+			continue
+		return node
+
+
+
+def have_complex_merge(node):
+	stack = []
+	stack.append(node)
+	while len(stack) != 0:
+		if stack[0].type == "merge":
+			if len(stack[0].expression) != 1:
+				print json.dumps(stack[0].expression[0].serialization())
+				print json.dumps(stack[0].expression[1].serialization())
+				return True
+		for subnode in stack[0].expression:
+			stack.append(subnode)
+		stack = stack[1:]
+	return False
+
+
+
 if __name__ == "__main__":
 	L = []
-	eq = 0
+	cnt = 0
 	total = 0
 	for line in open(sys.argv[1]):
 		line = line.strip()
@@ -103,10 +154,27 @@ if __name__ == "__main__":
 			target_DRSnode = DRSnode()
 			target_DRSnode.unserialization(target)
 
-			drg(target_DRSnode)
+			if have_complex_app(target_DRSnode):
+				cnt += 1
+			else:
+				
+				if "alfa" in L[3]:
+					cnt += 1
+				
+				else:
+					#print L[3]
+					rule_out_app(target_DRSnode)
+					#print json.dumps(target_DRSnode.serialization())
+					target_DRSnode = rule_out_lam(target_DRSnode)
+					L[3] = json.dumps(target_DRSnode.serialization())
+					print "\n".join(L)
+					print
+				
+			#print cnt, total
 			L = []
 		else:
 			L.append(line)
+	#print cnt
 	
 
 
