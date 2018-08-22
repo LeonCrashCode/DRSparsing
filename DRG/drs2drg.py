@@ -42,7 +42,7 @@ def drg(node):
 						Tuples.append(" ".join([n.attrib["label"], sn.attrib["symbol"], "\""+sn.attrib["sense"]+"\"", a1, a2]))
 					elif sn.type == "eq":
 						Tuples.append(" ".join([n.attrib["label"], "EQU",  a1, a2]))
-				elif sn.type == "named" or sn.type == "pred" or sn.type == "card": # named
+				elif sn.type == "named" or sn.type == "pred" or sn.type == "card" or sn.type == "timex": # named
 					a1 = sn.attrib["arg"]
 					if p.match(a1):
 						continue
@@ -53,8 +53,10 @@ def drg(node):
 						Tuples.append(" ".join([n.attrib["label"], sn.attrib["symbol"], "\""+sn.attrib["class"]+"\"", a1]))
 					elif sn.type == "pred":
 						Tuples.append(" ".join([n.attrib["label"], sn.attrib["symbol"], "\""+sn.attrib["type"]+"."+sn.attrib["sense"]+"\"", a1]))
-					else:
+					elif sn.type == "card":
 						Tuples.append(" ".join([n.attrib["label"], sn.attrib["type"], a1, "\"NUMBER\""]))
+					else:
+						Tuples.append(" ".join([n.attrib["label"], sn.expression[0].type, a1, "\"DATE\""]))
 				elif sn.type == "prop": # prop
 					a1 = sn.attrib["argument"]
 					if p.match(a1):
@@ -83,21 +85,24 @@ def drg(node):
 		elif n.type == "sub":
 			for sn in n.expression:
 				assert len(sn.expression) == 1
-				print sn.expression[0].types
 				assert sn.expression[0].type == "drs"
 				Tuples.append(" ".join([n.attrib["label"], "DRS", sn.attrib["label"]]))
 		for subnode in n.expression:
 			travel(subnode)
-
 	travel(node)
+
 
 if __name__ == "__main__":
 	L = []
 	eq = 0
 	total = 0
+	print "#"," ".join(sys.argv)
 	for line in open(sys.argv[1]):
 		line = line.strip()
 		if line == "":
+			if L[0] == "illegal":
+				L = []
+				continue
 			total += 1
 			target = json.loads(L[3], object_hook=ascii_encode_dict)
 			target_DRSnode = DRSnode()
@@ -106,6 +111,8 @@ if __name__ == "__main__":
 			drg(target_DRSnode)
 			L = []
 		else:
+			if line[0] == "#":
+				continue
 			L.append(line)
 	
 
