@@ -68,6 +68,7 @@ def merge(node):
 						#print "sdrs sdrs"
 						pass
 					else:
+					    	#print n.expression[i].expression[0].type, n.expression[i].expression[1].type
 						print "illegal"
 						#print "no"
 						pass
