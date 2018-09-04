@@ -3,6 +3,10 @@ import types
 import json
 import re
 from defination import DRSnode
+from utils import normal_variables_for_tuples
+nosense = False
+noner = False	
+
 def ascii_encode_dict(data):
     ascii_encode = lambda x: x.encode('utf-8') if isinstance(x, unicode) else x 
     return dict(map(ascii_encode, pair) for pair in data.items())
@@ -10,20 +14,36 @@ def ascii_encode_dict(data):
 p = re.compile("^v[0-9]+$")
 
 def drg(node):
+	
+	projections = {}
+	def getb(n):
+		if n.type == "dr":
+			name = n.attrib["name"]
+			if name in projections:
+				assert n.attrib["label"] == projections[name]
+			else:
+				projections[name] = n.attrib["label"]
+		for sn in n.expression:
+			getb(sn)
+	getb(node)
+
+	k2b = {}
+	def getk2b(n):
+		if n.type == "constituent":
+			klabel = n.attrib["label"]
+			blabel = n.expression[0].attrib["label"]
+			if klabel in k2b:
+				assert blabel == k2b[klabel]
+			else:
+				k2b[klabel] = blabel
+		for sn in n.expression:
+			getk2b(sn)
+	getk2b(node)
+	
+
 	declared_variable = []
-	def getb(arg):
-		if arg in declared_variable:
-			return None
-		stack = []
-		stack.append(node)
-		while len(stack) != 0:
-			if stack[0].type == "dr" and stack[0].attrib["name"] == arg:
-				declared_variable.append(arg)
-				return stack[0].attrib["label"]
-			for subnode in stack[0].expression:
-				stack.append(subnode)
-			stack = stack[1:]
 	Tuples = []
+	Flag = [True]
 	def travel(n):
 		if n.type == "cond":
 			for sn in n.expression:
@@ -32,27 +52,36 @@ def drg(node):
 					a2 = sn.attrib["arg2"]
 					if p.match(a1) or p.match(a2):
 						continue
-					b1 = getb(a1)
-					b2 = getb(a2)
-					if b1:
-						Tuples.append(" ".join([b1, "REF", a1]))
-					if b2:
-						Tuples.append(" ".join([b2, "REF", a2]))
+					if a1 not in declared_variable:
+						Tuples.append(" ".join([projections[a1], "REF", a1]))
+						declared_variable.append(a1)
+					if a2 not in declared_variable:
+						Tuples.append(" ".join([projections[a2], "REF", a2]))
+						declared_variable.append(a2)
 					if sn.type == "rel":
-						Tuples.append(" ".join([n.attrib["label"], sn.attrib["symbol"], "\""+sn.attrib["sense"]+"\"", a1, a2]))
+						if nosense:
+							Tuples.append(" ".join([n.attrib["label"], sn.attrib["symbol"], a1, a2]))
+						else:
+							Tuples.append(" ".join([n.attrib["label"], sn.attrib["symbol"], "\""+sn.attrib["sense"]+"\"", a1, a2]))
 					elif sn.type == "eq":
 						Tuples.append(" ".join([n.attrib["label"], "EQU",  a1, a2]))
 				elif sn.type == "named" or sn.type == "pred" or sn.type == "card" or sn.type == "timex": # named
 					a1 = sn.attrib["arg"]
 					if p.match(a1):
 						continue
-					b1 = getb(a1)
-					if b1:
-						Tuples.append(" ".join([b1, "REF", a1]))
+					if a1 not in declared_variable:
+						Tuples.append(" ".join([projections[a1], "REF", a1]))
+						declared_variable.append(a1)
 					if sn.type == "named":
-						Tuples.append(" ".join([n.attrib["label"], sn.attrib["symbol"], "\""+sn.attrib["class"]+"\"", a1]))
+						if noner:
+							Tuples.append(" ".join([n.attrib["label"], sn.attrib["symbol"], a1]))
+						else:
+							Tuples.append(" ".join([n.attrib["label"], sn.attrib["symbol"], "\""+sn.attrib["class"]+"\"", a1]))
 					elif sn.type == "pred":
-						Tuples.append(" ".join([n.attrib["label"], sn.attrib["symbol"], "\""+sn.attrib["type"]+"."+sn.attrib["sense"]+"\"", a1]))
+						if nosense:
+							Tuples.append(" ".join([n.attrib["label"], sn.attrib["symbol"], a1]))
+						else:
+							Tuples.append(" ".join([n.attrib["label"], sn.attrib["symbol"], "\""+sn.attrib["type"]+"."+sn.attrib["sense"]+"\"", a1]))
 					elif sn.type == "card":
 						Tuples.append(" ".join([n.attrib["label"], sn.attrib["type"], a1, "\"NUMBER\""]))
 					else:
@@ -61,35 +90,58 @@ def drg(node):
 					a1 = sn.attrib["argument"]
 					if p.match(a1):
 						continue
-					b1 = getb(a1)
-					if b1:
-						Tuples.append(" ".join([b1, "REF", a1]))
+					if a1 not in declared_variable:
+						Tuples.append(" ".join([projections[a1], "REF", a1]))
 					assert len(sn.expression) == 1, "prop sub node"
 					ssn = sn.expression[0]
 					assert ssn.type == "drs" or ssn.type == "sdrs", "unrecognized type"
 					Tuples.append(" ".join([n.attrib["label"], "PRP", a1, ssn.attrib["label"]]))
 
 				elif sn.type in ["not", "pos", "nec"]:
-					assert len(sn.expression) == 1, "not | pos | nec sub node"
+					#assert len(sn.expression) == 1, "not | pos | nec sub node"
+					if len(sn.expression) != 1:
+						Flag[0] = False
+						continue
 					ssn = sn.expression[0]
 					assert ssn.type == "drs" or ssn.type == "sdrs", "unrecognized type"
 					Tuples.append(" ".join([n.attrib["label"], sn.type.upper(), ssn.attrib["label"]]))
+				elif sn.type in ["imp", "or", "duplex"]:
+					#for ssn in sn.expression:
+					#	print ssn.type
+					#assert len(sn.expression) == 2, "imp | or | duplex sub node"
+					if len(sn.expression) != 2:
+						Flag[0] = False
+						continue
+					ssn1 = sn.expression[0]
+					ssn2 = sn.expression[1]
+					Tuples.append(" ".join([n.attrib["label"], sn.type.upper(), ssn1.attrib["label"], ssn2.attrib["label"]]))
 				else:
 					print sn.type
 					assert False, "unrecognized type"
 		elif n.type == "sdrs":
 			assert len(n.expression) == 2 #constituents and relations
 			for sn in n.expression[0].expression:
-				assert sn.type == "drs" or sn.type == "sub"
-				Tuples.append(" ".join([n.attrib["label"], "DRS", sn.attrib["label"]]))
+				assert sn.type == "constituent" or sn.type == "sub"
+				if sn.type == "sub":
+					Tuples.append(" ".join([n.attrib["label"], "SUB", sn.attrib["label"]]))
+				elif sn.type == "constituent":
+					Tuples.append(" ".join([n.attrib["label"], "DRS", sn.expression[0].attrib["label"]]))
+		elif n.type == "constituent":
+			pass
 		elif n.type == "sub":
 			for sn in n.expression:
 				assert len(sn.expression) == 1
-				assert sn.expression[0].type == "drs"
+				assert sn.expression[0].type == "drs" or sn.expression[0].type == "sdrs"
 				Tuples.append(" ".join([n.attrib["label"], "DRS", sn.attrib["label"]]))
+		elif n.type == "relations":
+			for sn in n.expression:
+				a1 = sn.attrib["arg1"]
+				a2 = sn.attrib["arg2"]
+				Tuples.append(" ".join([sn.attrib["label"], sn.attrib["sym"].upper(), k2b[a1], k2b[a2]]))
 		for subnode in n.expression:
 			travel(subnode)
 	travel(node)
+	return Flag[0], Tuples
 
 
 if __name__ == "__main__":
@@ -108,7 +160,14 @@ if __name__ == "__main__":
 			target_DRSnode = DRSnode()
 			target_DRSnode.unserialization(target)
 
-			drg(target_DRSnode)
+			flag, Tuples = drg(target_DRSnode)
+
+			normal_variables_for_tuples(Tuples)
+			if flag:
+				print "\n".join(L[:-1])
+				print "\n".join(Tuples)
+				print 
+
 			L = []
 		else:
 			if line[0] == "#":

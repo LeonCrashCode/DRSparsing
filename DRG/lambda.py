@@ -13,6 +13,8 @@ def add_pointer(node, start):
 		if n.type == "sdrs" or n.type == "sub":
 			n.attrib["label"] = "b"+str(index[0])
 			index[0] += 1
+			for drel in n.expression[1].expression:
+				drel.attrib["label"] = n.attrib["label"]
 		for sn in n.expression:
 			travel(sn)
 	travel(node)
@@ -95,7 +97,8 @@ def process_lex(parent):
 			supertag = DRSnode()
 			supertag.init_from_xml(child[0])
 			add_pointer(supertag, 1000)
-			print json.dumps(supertag.serialization())	
+			print json.dumps(supertag.serialization())
+			print 
 			break
 	assert find
 

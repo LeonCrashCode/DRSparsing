@@ -146,6 +146,7 @@ if __name__ == "__main__":
 	L = []
 	cnt = 0
 	total = 0
+	print "#", " ".join(sys.argv)
 	for line in open(sys.argv[1]):
 		line = line.strip()
 		if line == "":
@@ -173,6 +174,8 @@ if __name__ == "__main__":
 			#print cnt, total
 			L = []
 		else:
+			if line[0] == "#":
+				continue
 			L.append(line)
 	#print cnt
 	

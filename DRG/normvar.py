@@ -19,9 +19,6 @@ if __name__ == "__main__":
 	for line in open(sys.argv[1]):
 		line = line.strip()
 		if line == "":
-			if L[0] == "illegal":
-				L = []
-				continue
 			total += 1
 			target = json.loads(L[3], object_hook=ascii_encode_dict)
 			target_DRSnode = DRSnode()

@@ -57,18 +57,18 @@ def merge(node):
 						pass
 					elif n.expression[i].expression[0].type == "sdrs" and n.expression[i].expression[1].type == "drs":
 						#print "sdrs drs"
-						#last_drs = get_last_drs(n.expression[i].expression[0])
-						#change_label(last_drs, last_drs.attrib["label"], n.expression[i].expressionp[1].attrib["label"])
-						#last_drs.expression[0] += n.expression[i].expression[1].expression[0]
-						#last_drs.expression[1] += n.expression[i].expression[1].expression[1]
-						#n.expression[i] = n.expression[i].expression[0]
+						last_drs = get_last_drs(n.expression[i].expression[0])
+						change_label(last_drs, last_drs.attrib["label"], n.expression[i].expressionp[1].attrib["label"])
+						last_drs.expression[0] += n.expression[i].expression[1].expression[0]
+						last_drs.expression[1] += n.expression[i].expression[1].expression[1]
+						n.expression[i] = n.expression[i].expression[0]
 						pass
 					elif n.expression[i].expression[0].type == "sdrs" and n.expression[i].expression[1].type == "sdrs":
 						print "illegal"
 						#print "sdrs sdrs"
 						pass
 					else:
-					    	#print n.expression[i].expression[0].type, n.expression[i].expression[1].type
+					    #print n.expression[i].expression[0].type, n.expression[i].expression[1].type
 						print "illegal"
 						#print "no"
 						pass
@@ -86,6 +86,9 @@ if __name__ == "__main__":
 	for line in open(sys.argv[1]):
 		line = line.strip()
 		if line == "":
+			if L[0] == "illegal":
+				L = []
+				continue
 			total += 1
 			target = json.loads(L[3], object_hook=ascii_encode_dict)
 			target_DRSnode = DRSnode()
@@ -102,6 +105,8 @@ if __name__ == "__main__":
 			#print cnt, total
 			L = []
 		else:
+			if line[0] == "#":
+				continue
 			L.append(line)
 	#print cnt
 
