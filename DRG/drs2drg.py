@@ -4,8 +4,8 @@ import json
 import re
 from defination import DRSnode
 from utils import normal_variables_for_tuples
-nosense = False
-noner = False	
+nosense = True
+noner = True
 
 def ascii_encode_dict(data):
     ascii_encode = lambda x: x.encode('utf-8') if isinstance(x, unicode) else x 

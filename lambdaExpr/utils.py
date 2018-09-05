@@ -87,6 +87,32 @@ def normal_variables(node):
 		for i in range(len(node.expression)):
 			normalization(node.expression[i])
 	normalization(node)
+
+def normal_variables_for_tuples(tuples):
+	ps = []
+	starts = ["b", "x", "e", "s", "t", "p", "k", "v"]
+	for start in starts:
+		ps.append(re.compile("^"+start+"[0-9]+?$"))
+
+	vl = [[] for i in range(8)]
+	def match(a):
+		for i in range(8):
+			if ps[i].match(a):
+				return i
+		return -1
+	for i in range(len(tuples)):
+		tmp = tuples[i].split()
+		for j in range(len(tmp)):
+			idx = match(tmp[j])
+			if idx != -1:
+				if tmp[j] in vl[idx]:
+					tmp[j] = starts[idx] + str(vl[idx].index(tmp[j]) + 1)
+				else:
+					vl[idx].append(tmp[j])
+					tmp[j] = starts[idx] + str(len(vl[idx]))
+		tuples[i] = " ".join(tmp)
+
+
 def add_variable(node, v):
 
 	first_node = []

@@ -18,7 +18,6 @@ def simplify_time(L):
 						variable.append(tup)
 		for tuples in L:
 			tuples = tuples.split()
-			print tuples
 			if tuples[1] == "EQU":
 				if px.match(tuples[-1]) and pt.match(tuples[-2]):
 					if tuples[-1] not in variable:
@@ -40,7 +39,24 @@ def simplify_time(L):
 			continue
 		else:
 			new_L.append(" ".join(tuples))
-	return new_L
+
+	variable = []
+	for tuples in new_L:
+		tuples = tuples.split()
+		if tuples[1] == "REF":
+			continue
+		for tup in tuples[2:]:
+			if tup not in variable:
+				variable.append(tup)
+
+	new_new_L = []
+	for tuples in new_L:
+		tuples = tuples.split()
+		if tuples[1] == "REF" and tuples[-1] not in variable:
+			continue
+		else:
+			new_new_L.append(" ".join(tuples))
+	return new_new_L
 
 if __name__ == "__main__":
 	L = []
@@ -55,6 +71,7 @@ if __name__ == "__main__":
 			newL = simplify_time(L[3:])
 			print "\n".join(L[:3])
 			print "\n".join(newL)
+			print 
 			#print cnt, total
 			L = []
 		else:
