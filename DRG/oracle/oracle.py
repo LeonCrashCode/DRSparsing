@@ -1,7 +1,7 @@
 import sys
 
 def printout(line, L):
-	print " ||| ".join(L[line]) + " TERM"
+	print " ||| ".join(L[line])
 
 if __name__ == "__main__":
 	L = {}
