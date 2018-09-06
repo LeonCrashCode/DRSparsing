@@ -1,7 +1,8 @@
 import sys
 import types
 import re
-
+from utils import normal_variables_for_tuples
+from utils import redundent_ref
 px = re.compile("^x[0-9]+?$")
 pt = re.compile("^t[0-9]+?$")
 
@@ -40,23 +41,7 @@ def simplify_time(L):
 		else:
 			new_L.append(" ".join(tuples))
 
-	variable = []
-	for tuples in new_L:
-		tuples = tuples.split()
-		if tuples[1] == "REF":
-			continue
-		for tup in tuples[2:]:
-			if tup not in variable:
-				variable.append(tup)
-
-	new_new_L = []
-	for tuples in new_L:
-		tuples = tuples.split()
-		if tuples[1] == "REF" and tuples[-1] not in variable:
-			continue
-		else:
-			new_new_L.append(" ".join(tuples))
-	return new_new_L
+	return new_L
 
 if __name__ == "__main__":
 	L = []
@@ -69,6 +54,8 @@ if __name__ == "__main__":
 			total += 1
 
 			newL = simplify_time(L[3:])
+			newL = redundent_ref(newL)
+			normal_variables_for_tuples(newL)
 			print "\n".join(L[:3])
 			print "\n".join(newL)
 			print 

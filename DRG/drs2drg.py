@@ -4,7 +4,7 @@ import json
 import re
 from defination import DRSnode
 from utils import normal_variables_for_tuples
-
+from utils import redundent_ref
 nosense = False
 if len(sys.argv) >= 3 and sys.argv[2] == "nosense":
 	nosense = True
@@ -166,8 +166,10 @@ if __name__ == "__main__":
 
 			flag, Tuples = drg(target_DRSnode)
 
+			Tuples = redundent_ref(Tuples)
 			normal_variables_for_tuples(Tuples)
-			if flag:
+
+			if flag and len(Tuples) != 0:
 				print "\n".join(L[:-1])
 				print "\n".join(Tuples)
 				print 

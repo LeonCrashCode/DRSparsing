@@ -1,6 +1,7 @@
 import sys
 
 def printout(line, L):
+	assert line in L
 	print " ||| ".join(L[line])
 
 if __name__ == "__main__":
@@ -15,6 +16,9 @@ if __name__ == "__main__":
 		if line == "":
 			if len(tmpL) == 0:
 				continue
+			if len(tmpL[3:]) == 0:
+				print tmpL[0]
+				exit()
 			L[tmpL[0]] = tmpL[3:]
 			tmpL = []
 		else:
