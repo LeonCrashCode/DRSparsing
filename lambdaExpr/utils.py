@@ -112,6 +112,25 @@ def normal_variables_for_tuples(tuples):
 					tmp[j] = starts[idx] + str(len(vl[idx]))
 		tuples[i] = " ".join(tmp)
 
+def redundent_ref(L):
+	variable = []
+	for tuples in L:
+		tuples = tuples.split()
+		if tuples[1] == "REF":
+			continue
+		for tup in tuples[2:]:
+			if tup not in variable:
+				variable.append(tup)
+
+	new_L = []
+	for tuples in L:
+		tuples = tuples.split()
+		if tuples[1] == "REF" and tuples[-1] not in variable:
+			continue
+		else:
+			new_L.append(" ".join(tuples))
+	return new_L
+
 
 def add_variable(node, v):
 
