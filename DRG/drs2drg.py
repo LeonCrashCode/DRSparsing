@@ -96,6 +96,7 @@ def drg(node):
 						continue
 					if a1 not in declared_variable:
 						Tuples.append(" ".join([projections[a1], "REF", a1]))
+						declared_variable.append(a1)
 					assert len(sn.expression) == 1, "prop sub node"
 					ssn = sn.expression[0]
 					assert ssn.type == "drs" or ssn.type == "sdrs", "unrecognized type"
