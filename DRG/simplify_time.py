@@ -20,10 +20,10 @@ def simplify_time(L):
 		for tuples in L:
 			tuples = tuples.split()
 			if tuples[1] == "EQU":
-				if px.match(tuples[-1]) and pt.match(tuples[-2]):
+				if px.match(tuples[-1]) and tuples[-2] in variable:
 					if tuples[-1] not in variable:
 						variable.append(tuples[-1])
-				if px.match(tuples[-2]) and pt.match(tuples[-1]):
+				if px.match(tuples[-2]) and tuples[-1] in variable:
 					if tuples[-2] not in variable:
 						variable.append(tuples[-2])
 		if len(variable) == l:

@@ -14,6 +14,7 @@ def ascii_encode_dict(data):
     return dict(map(ascii_encode, pair) for pair in data.items())
 
 pv= re.compile("^v[0-9]+$")
+pp= re.compile("^p[0-9]+$")
 def merge(node):
 
 	def change_label(n, fr, to):
@@ -100,7 +101,33 @@ def merge(node):
 			travel2(sn)
 	travel2(node)
 
+	variable = []
+	def travel3(n): # make sure prop variable is started with "p"
+		if n.type == "prop":
+			if pp.match(n.attrib["argument"]):
+				pass
+			elif n.attrib["argument"] not in variable:
+				variable.append(n.attrib["argument"])
+		for sn in n.expression:
+			travel3(sn)
 
+	travel3(node)
+
+	def travel4(n):
+		if n.type == "dr" and (n.attrib["name"] in variable):
+			n.attrib["name"] = "p"+str(1000+variable.index(n.attrib["name"]))
+		if ("arg" in n.attrib) and (n.attrib["arg"] in variable):
+			n.attrib["arg"] = "p"+str(1000+variable.index(n.attrib["arg"]))
+		if ("arg1" in n.attrib) and (n.attrib["arg1"] in variable):
+			n.attrib["arg1"] = "p"+str(1000+variable.index(n.attrib["arg1"]))
+		if ("arg2" in n.attrib) and (n.attrib["arg2"] in variable):
+			n.attrib["arg2"] = "p"+str(1000+variable.index(n.attrib["arg2"]))
+		if ("argument" in n.attrib) and (n.attrib["argument"] in variable):
+			n.attrib["argument"] = "p"+str(1000+variable.index(n.attrib["argument"]))
+		for sn in n.expression:
+			travel4(sn)
+
+	travel4(node)
 
 if __name__ == "__main__":
 	L = []
