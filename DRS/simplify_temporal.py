@@ -119,7 +119,7 @@ if __name__ == "__main__":
 			target_DRSnode.unserialization(target)
 
 			simplify_temporal(target_DRSnode)
-			normal_variables(target_DRSnode)
+			#normal_variables(target_DRSnode)
 			
 			L[3] = json.dumps(target_DRSnode.serialization())
 
