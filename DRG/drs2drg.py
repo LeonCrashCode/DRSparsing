@@ -15,7 +15,7 @@ def ascii_encode_dict(data):
     ascii_encode = lambda x: x.encode('utf-8') if isinstance(x, unicode) else x 
     return dict(map(ascii_encode, pair) for pair in data.items())
 
-p = re.compile("^v[0-9]+$")
+#p = re.compile("^v[0-9]+$")
 
 def drg(node):
 	
@@ -54,8 +54,8 @@ def drg(node):
 				if sn.type == "rel" or sn.type == "eq": # rel
 					a1 = sn.attrib["arg1"]
 					a2 = sn.attrib["arg2"]
-					if p.match(a1) or p.match(a2):
-						continue
+					#if p.match(a1) or p.match(a2):
+					#	continue
 					if a1 not in declared_variable:
 						Tuples.append(" ".join([projections[a1], "REF", a1]))
 						declared_variable.append(a1)
@@ -71,8 +71,8 @@ def drg(node):
 						Tuples.append(" ".join([n.attrib["label"], "EQU",  a1, a2]))
 				elif sn.type == "named" or sn.type == "pred" or sn.type == "card" or sn.type == "timex": # named
 					a1 = sn.attrib["arg"]
-					if p.match(a1):
-						continue
+					#if p.match(a1):
+					#	continue
 					if a1 not in declared_variable:
 						Tuples.append(" ".join([projections[a1], "REF", a1]))
 						declared_variable.append(a1)
@@ -92,8 +92,8 @@ def drg(node):
 						Tuples.append(" ".join([n.attrib["label"], sn.expression[0].type, a1, "\"DATE\""]))
 				elif sn.type == "prop": # prop
 					a1 = sn.attrib["argument"]
-					if p.match(a1):
-						continue
+					#if p.match(a1):
+					#	continue
 					if a1 not in declared_variable:
 						Tuples.append(" ".join([projections[a1], "REF", a1]))
 						declared_variable.append(a1)
@@ -167,10 +167,11 @@ if __name__ == "__main__":
 
 			flag, Tuples = drg(target_DRSnode)
 
-			Tuples = redundent_ref(Tuples)
+			#Tuples = redundent_ref(Tuples)
 			normal_variables_for_tuples(Tuples)
 
-			if flag and len(Tuples) != 0:
+			#if flag and len(Tuples) != 0:
+			if len(Tuples) != 0:
 				print "\n".join(L[:-1])
 				print "\n".join(Tuples)
 				print 

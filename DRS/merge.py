@@ -1,3 +1,9 @@
+"""
+this file is to output the completed drs without "merge" and v variables,
+ignoring merge sdrs and sdrs
+making sure complex condition, "not", "pos" and "nec", have and only have one drs
+"imp", "or" and "duplex" have and only have two drs
+"""
 import sys
 import types
 import json
@@ -7,7 +13,7 @@ def ascii_encode_dict(data):
     ascii_encode = lambda x: x.encode('utf-8') if isinstance(x, unicode) else x 
     return dict(map(ascii_encode, pair) for pair in data.items())
 
-p = re.compile("^v[0-9]+$")
+pv= re.compile("^v[0-9]+$")
 def merge(node):
 
 	def change_label(n, fr, to):
@@ -72,9 +78,27 @@ def merge(node):
 						print "illegal"
 						#print "no"
 						pass
+		if (n.type in ["not", "pos", "nec"]) and len(n.expression) != 1:
+			print "illegal"
+		if (n.type in ["imp", "or", "duplex"]) and len(n.expression) != 2:
+			print "illegal"
 
-	return travel(node)
+	travel(node)
 
+	def travel2(n): # erase v variable
+		if n.type == "conds":
+			newlist = []
+			for sn in n.expression:
+				ssn = sn.expression[0]
+				if ssn.type in ["rel", "eq"] and (pv.match(ssn.attrib["arg1"]) or pv.match(ssn.attrib["arg2"])):
+					continue
+				if ssn.type in ["named", "pred", "card", "timex"] and pv.match(ssn.attrib["arg"]):
+					continue
+				newlist.append(sn)
+			n.expression = newlist
+		for sn in n.expression:
+			travel2(sn)
+	travel2(node)
 
 
 
