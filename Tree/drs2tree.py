@@ -11,10 +11,14 @@ def ascii_encode_dict(data):
 def tree(node):
 	
 	def travel2(n):
-		if ("symbol" in n.attrib) and n.attrib["symbol"] in ["(", "[", "{"]:
+		if ("symbol" in n.attrib) and (n.attrib["symbol"] in ["(", "[", "{"]):
 			n.attrib["symbol"] = "-lrb-"
-		if ("symbol" in n.attrib) and n.attrib["symbol"] == [")", "]", "}"]:
+		if ("symbol" in n.attrib) and (n.attrib["symbol"] in [")", "]", "}"]):
 			n.attrib["symbol"] = "-rrb-"
+		if ("sym" in n.attrib) and (n.attrib["sym"] in ["(", "[", "{"]):
+			n.attrib["sym"] = "-lrb-"
+		if ("sym" in n.attrib) and (n.attrib["sym"] in [")", "]", "}"]):
+			n.attrib["sym"] = "-rrb-"
 		for sn in n.expression:
 			travel2(sn)
 	travel2(node)
