@@ -6,11 +6,21 @@ def printout(line, L):
 
 def printouts(line, L):
 	for it in L[line]:
-		print it.split()[0],
+		it = it.split()[0]
+		if it in ["(", "[", "{"]:
+			it = "-LRB-"
+		if it in [")", "]", "}"]:
+			it = "-RRB-" 
+		print it,
 	print
 
 	for it in L[line]:
-		print it.split()[1],
+		it = it.split()[1]
+		if it in ["(", "[", "{"]:
+			it = "-lrb-"
+		if it in [")", "]", "}"]:
+			it = "-rrb-" 
+		print it,
 	print
 
 if __name__ == "__main__":
