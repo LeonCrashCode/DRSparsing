@@ -1,7 +1,7 @@
 import sys
 import re
 
-ec = []
+ec = ["K15", "P10", "X40", "E15", "S15"]
 for line in open("ErrorCond"):
 	line = line.strip()
 	ec.append(line.split()[0]+"(")
