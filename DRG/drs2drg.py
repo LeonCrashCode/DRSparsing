@@ -18,6 +18,17 @@ def ascii_encode_dict(data):
 #p = re.compile("^v[0-9]+$")
 
 def drg(node):
+
+	#change ( to -lrb- and change ")" to "-rrb-"
+
+	def travel2(n):
+		if ("symbol" in n.attrib) and n.attrib["symbol"] in ["(", "[", "{"]:
+			n.attrib["symbol"] = "-lrb-"
+		if ("symbol" in n.attrib) and n.attrib["symbol"] == [")", "]", "}"]:
+			n.attrib["symbol"] = "-rrb-"
+		for sn in n.expression:
+			travel2(sn)
+	travel2(node)
 	
 	projections = {}
 	def getb(n):
