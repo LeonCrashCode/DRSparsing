@@ -4,6 +4,15 @@ def printout(line, L):
 	assert line in L
 	print " ||| ".join(L[line])
 
+def printouts(line, L):
+	for it in L[line]:
+		print it.split()[0],
+	print
+
+	for it in L[line]:
+		print it.split()[1],
+	print
+
 if __name__ == "__main__":
 	L = {}
 	tmpL = []
@@ -26,10 +35,20 @@ if __name__ == "__main__":
 				continue
 			tmpL.append(line)
 
+	Ls = {}
 	for line in open(sys.argv[2]):
+		line = line.strip()
+		if len(line.split()) == 3:
+			prev = " ".join(line.split()[1:])
+			Ls[prev] = []
+		else:
+			Ls[prev].append(line)
+
+	for line in open(sys.argv[3]):
 		line = line.strip()
 		if line[0] == "#":
 			continue
+		printouts(line, Ls)
 		printout(line, L)
 
 		
