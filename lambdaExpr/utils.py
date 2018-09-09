@@ -112,6 +112,52 @@ def normal_variables_for_tuples(tuples):
 					tmp[j] = starts[idx] + str(len(vl[idx]))
 		tuples[i] = " ".join(tmp)
 
+def normal_variables_for_trees(trees):
+	ps = []
+	starts = ["X", "E", "S"]
+	for start in starts:
+		ps.append(re.compile("^"+start+"[0-9]+?$"))
+
+	pp = re.compile("^P[0-9]+?$")
+	pk = re.compile("^K[0-9]+?$")
+	pv = []
+	kv = []
+	
+	pp_c = re.compile("^P[0-9]+\($")
+	pk_c = re.compile("^K[0-9]+\($")
+	pcv = []
+	kcv = []
+	for i in range(len(trees)):
+		if pp_c.match(trees[i]) and (trees[i] not in pcv):
+			pcv.append(trees[i])
+			pv.append(trees[i][:-1])
+		if pk_c.match(trees[i]) and (trees[i] not in kcv):
+			kcv.append(trees[i])
+			kv.append(trees[i][:-1])
+
+	vl = [[] for i in range(3)]
+	def match(a):
+		for i in range(3):
+			if ps[i].match(a):
+				return i
+		return -1
+	for i in range(len(trees)):
+		idx = match(trees[i])
+		if idx != -1:
+			if trees[i] in vl[idx]:
+				trees[i] = starts[idx] + str(vl[idx].index(trees[i]) + 1)
+			else:
+				vl[idx].append(trees[i])
+				trees[i] = starts[idx] + str(len(vl[idx]))
+		elif pp_c.match(trees[i]):
+			trees[i] = "P"+str(pcv.index(trees[i])+1)+"("
+		elif pk_c.match(trees[i]):
+			trees[i] = "K"+str(kcv.index(trees[i])+1)+"("
+		elif pp.match(trees[i]):
+			trees[i] = "P"+str(pv.index(trees[i])+1)
+		elif pk.match(trees[i]):
+			trees[i] = "K"+str(kv.index(trees[i])+1)
+
 def redundent_ref(L):
 	variable = []
 	for tuples in L:
