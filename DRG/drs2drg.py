@@ -22,10 +22,14 @@ def drg(node):
 	#change ( to -lrb- and change ")" to "-rrb-"
 
 	def travel2(n):
-		if ("symbol" in n.attrib) and n.attrib["symbol"] in ["(", "[", "{"]:
+		if ("symbol" in n.attrib) and (n.attrib["symbol"] in ["(", "[", "{"]):
 			n.attrib["symbol"] = "-lrb-"
-		if ("symbol" in n.attrib) and n.attrib["symbol"] == [")", "]", "}"]:
+		if ("symbol" in n.attrib) and (n.attrib["symbol"] in [")", "]", "}"]):
 			n.attrib["symbol"] = "-rrb-"
+		if ("sym" in n.attrib) and (n.attrib["sym"] in ["(", "[", "{"]):
+			n.attrib["sym"] = "-lrb-"
+		if ("sym" in n.attrib) and (n.attrib["sym"] in [")", "]", "}"]):
+			n.attrib["sym"] = "-rrb-"
 		for sn in n.expression:
 			travel2(sn)
 	travel2(node)
@@ -148,12 +152,12 @@ def drg(node):
 			for sn in n.expression:
 				assert len(sn.expression) == 1
 				assert sn.expression[0].type == "drs" or sn.expression[0].type == "sdrs"
-				Tuples.append(" ".join([n.attrib["label"], "DRS", sn.attrib["label"]]))
+				Tuples.append(" ".join([n.attrib["label"], "DRS", sn.expression[0].attrib["label"]]))
 		elif n.type == "relations":
 			for sn in n.expression:
 				a1 = sn.attrib["arg1"]
 				a2 = sn.attrib["arg2"]
-				Tuples.append(" ".join([sn.attrib["label"], sn.attrib["sym"].upper(), k2b[a1], k2b[a2]]))
+				Tuples.append(" ".join([sn.attrib["label"], sn.attrib["sym"], k2b[a1], k2b[a2]]))
 		for subnode in n.expression:
 			travel(subnode)
 	travel(node)
