@@ -9,4 +9,6 @@ python input.py ../supertag ${1}/${part}.filelist > ${1}/${part}.input
 python oracle.py ../${1} ${1}/${part}.filelist > ${1}/${part}.oracle
 done
 
+python cleanTrain.py ${1}/trn.input ${1}/trn.oracle 
+
 

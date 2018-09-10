@@ -102,9 +102,13 @@ def drg(node):
 						else:
 							Tuples.append(" ".join([n.attrib["label"], sn.attrib["symbol"], "\""+sn.attrib["type"]+"."+sn.attrib["sense"]+"\"", a1]))
 					elif sn.type == "card":
-						Tuples.append(" ".join([n.attrib["label"], sn.attrib["type"], a1, "\"NUMBER\""]))
+						assert sn.attrib["type"] == "eq"
+						sn.attrib["type"] = "EQU"
+						Tuples.append(" ".join([n.attrib["label"], sn.attrib["type"], a1, "\"CARD_NUMBER\""]))
 					else:
-						Tuples.append(" ".join([n.attrib["label"], sn.expression[0].type, a1, "\"DATE\""]))
+						assert sn.expression[0].type == "date"
+						#Tuples.append(" ".join([n.attrib["label"], sn.expression[0].type, a1, "\"TIME_NUMBER\""]))
+						Tuples.append(" ".join([n.attrib["label"], "EQU", a1, "\"TIME_NUMBER\""]))
 				elif sn.type == "prop": # prop
 					a1 = sn.attrib["argument"]
 					#if p.match(a1):

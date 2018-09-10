@@ -21,7 +21,7 @@ for line in open(sys.argv[2]):
 		continue
 	for item in line.split("|||"):
 		item = item.split()
-		if item[1] in ["DRS", "NEC", "POS", "NOT", "DUPLEX", "IMP", "OR", "SUB"]:
+		if item[1] in ["REF", "PRP", "EQU", "DRS", "SUB", "NOT", "POS", "NEC", "IMP", "OR", "DUPLEX"]:
 			continue
 		if item[1] not in L[i]:
 			if item[1] not in D:
