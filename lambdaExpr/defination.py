@@ -13,7 +13,7 @@ class DRSnode(object):
 		self.attrib = node.attrib
 		self.indexs = get_index(node)
 		for cnode in node:
-			if cnode.tag == "indexlist":
+			if cnode.tag in ["indexlist", "tokens", "taggedtokens"]:
 				continue
 			subnode = DRSnode()
 			subnode.init_from_xml(cnode)

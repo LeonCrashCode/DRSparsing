@@ -2,8 +2,9 @@ import sys
 
 def printout(line, L):
 	assert line in L
-	print " ||| ".join(L[line])
-
+	#print " ||| ".join(L[line])
+	print "\n".join(L[line])
+	print
 if __name__ == "__main__":
 	L = {}
 	tmpL = []
