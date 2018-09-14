@@ -3,6 +3,7 @@ import sys
 import xml.etree.ElementTree as ET
 import re
 
+sense = False
 x_p = re.compile("^x[0-9]+$")
 e_p = re.compile("^e[0-9]+$")
 s_p = re.compile("^s[0-9]+$")
@@ -15,7 +16,7 @@ sc_p = re.compile("\"[a-z]\.[0-9]+\"")
 r_p = re.compile("r[0-9]+?")
 k_p = re.compile("k[0-9]+?")
 
-def is_var(item):
+def is_common_var(item):
 	if x_p.match(item):
 		return True
 	elif e_p.match(item):
@@ -26,23 +27,38 @@ def is_var(item):
 		return True
 	elif p_p.match(item):
 		return True
-	elif b_p.match(item):
-		return True
-	elif c_p.match(item):
-		return True
-	elif item in ["\"speaker\"", "\"hearer\"", "\"now\""]:
+	else:
+		return False
+def is_other_var(item):
+	if item in ["\"speaker\"", "\"hearer\"", "\"now\""]:
 		return True
 	else:
 		return False
-def is_box(item):
+
+def is_drs(item):
 	if b_p.match(item):
 		return True
-	elif c_p.match(item):
+	else:
+		return False
+
+def is_sdrs(item):
+	if c_p.match(item):
 		return True
 	else:
 		return False
+
+def is_box(item):
+	if is_drs(item) or is_sdrs(item):
+		return True
+	return False
+
+def is_var(item):
+	if is_common_var(item) or is_other_var(item):
+		return True
+	return False
+
 def is_realword(item):
-	if item[0] == "\"" and item[-1] == "\"" and item not in  ["\"speaker\"", "\"hearer\"", "\"now\""]:
+	if item[0] == "\"" and item[-1] == "\"" and (not is_other_var(item)):
 		return True
 	else:
 		return False
@@ -141,9 +157,9 @@ def normal_lines(lines):
 			print line
 	return newlines
 def tuple_lines(lines):
+	v_id = 0
+	o_id = 0
 	r_id = 0
-	c_id = 0
-	k_id = 0
 	d_id = 0
 	newlines = []
 	for line in lines:
@@ -152,56 +168,69 @@ def tuple_lines(lines):
 			continue
 		line = "%".join(line.split("%")[:1]).strip()
 		toks = line.split()
-		assert b_p.match(toks[0])
+		
 
-		if toks[1] == "REF":
-			assert len(toks) == 3 and is_var(toks[2])
+		#B REF X
+		if len(toks) == 3 and is_drs(toks[0]) and toks[1] == "REF" and is_common_var(toks[2]):
 			newlines.append(line)
-		elif toks[1] in ["NOT", "POS", "NEC", "DRS"]:
-			assert len(toks) == 3 and b_p.match(toks[2])
+		#B NOT/POS/NEC/DRS B'
+		elif len(toks) == 3 and is_drs(toks[0]) and toks[1] in ["NOT", "POS", "NEC", "DRS"] and is_box(toks[2]):
 			newlines.append(line)
-		elif toks[1] in ["IMP", "DIS"]:
-			assert len(toks) == 4 and b_p.match(toks[2]) and b_p.match(toks[3])
-			newlines.append(" ".join([toks[0], toks[1], "k"+str(k_id)]))
-			newlines.append(" ".join(["k"+str(k_id), "ARG0", toks[2]]))
-			newlines.append(" ".join(["k"+str(k_id), "ARG1", toks[3]]))
-			k_id += 1
-		elif toks[1] == "PRP":
-			assert len(toks) == 4 and p_p.match(toks[2]) and b_p.match(toks[3])
-			newlines.append(" ".join([toks[0], toks[1], "c"+str(c_id)]))
-			newlines.append(" ".join(["c"+str(c_id), "ARG0", toks[2]]))
-			newlines.append(" ".join(["c"+str(c_id), "ARG1", toks[3]]))
-			c_id += 1
-		elif toks[1] in ["EQU", "NEQ", "APX", "LES", "LEQ", "TPR", "TAB"]:
-			assert len(toks) ==4 and is_var(toks[2]) and is_var(toks[3])
+		#B IMP/DIS B' B''
+		elif len(toks) == 4 and is_drs(toks[0]) and toks[1] in ["IMP", "DIS"] and is_box(toks[2]) and is_box(toks[3]):
+			newlines.append(" ".join([toks[0], toks[1], "v"+str(v_id)]))
+			newlines.append(" ".join(["v"+str(v_id), "ARG0", toks[2]]))
+			newlines.append(" ".join(["v"+str(v_id), "ARG1", toks[3]]))
+			v_id += 1
+		#B PRP X B'
+		elif len(toks) == 4 and is_drs(toks[0]) and toks[1] == "PRP" and p_p.match(toks[2]) and is_box(toks[3]):
+			newlines.append(" ".join([toks[0], toks[1], "o"+str(o_id)]))
+			newlines.append(" ".join(["o"+str(o_id), "ARG0", toks[2]]))
+			newlines.append(" ".join(["o"+str(o_id), "ARG1", toks[3]]))
+			o_id += 1
+		#B EQU/NEQ/APX/LES/LEQ/TPR/TAB X Y
+		elif len(toks) == 4 and is_drs(toks[0]) and toks[1] in ["EQU", "NEQ", "APX", "LES", "LEQ", "TPR", "TAB"] and is_var(toks[2]) and is_var(toks[3]):
 			newlines.append(" ".join([toks[0], toks[1], "r"+str(r_id)]))
 			newlines.append(" ".join(["r"+str(r_id), "ARG0", toks[2]]))
 			newlines.append(" ".join(["r"+str(r_id), "ARG1", toks[3]]))
 			r_id += 1
+		# B SYM SNS X  e.g. b0 company n.01 x1
+		elif len(toks) == 4 and is_drs(toks[0]) and is_subclass(toks[2]) and is_var(toks[3]):
+			if sense:
+				newlines.append(" ".join([toks[0], toks[1]+"."+toks[2], toks[3]]))
+			else:
+				newlines.append(" ".join([toks[0], toks[1], toks[3]]))
+
+		# B ROL X Y 
+		elif len(toks) == 4 and is_drs(toks[0]):
+			if toks[1] in ["Name", "Quantity"]:
+				if is_realword(toks[2]) and is_common_var(toks[3]):
+					newlines.append(" ".join([toks[0], toks[1]+"_"+normal_mwe(toks[2][1:-1]), toks[3]]))
+				elif is_realword(toks[3]) and is_common_var(toks[2]):
+					newlines.append(" ".join([toks[0], toks[1]+"_"+normal_mwe(toks[3][1:-1]), toks[2]]))
+				elif is_common_var(toks[2]) and is_common_var(toks[3]):
+					newlines.append(" ".join([toks[0], toks[1], "r"+str(r_id)]))
+					newlines.append(" ".join(["r"+str(r_id), "ARG0", toks[2]]))
+					newlines.append(" ".join(["r"+str(r_id), "ARG1", toks[3]]))
+				else:
+					assert False
+			elif is_common_var(toks[2]) and is_common_var(toks[3]):
+				newlines.append(" ".join([toks[0], toks[1], "r"+str(r_id)]))
+				newlines.append(" ".join(["r"+str(r_id), "ARG0", toks[2]]))
+				newlines.append(" ".join(["r"+str(r_id), "ARG1", toks[3]]))
+				r_id += 1
+			else:
+				print "####:",line
+				assert False
+
 		# B REL B' B''
-		elif len(toks) == 4 and b_p.match(toks[2]) and b_p.match(toks[3]):
+		elif len(toks) == 4 and is_sdrs(toks[0]) and is_drs(toks[2]) and is_drs(toks[3]):
 			newlines.append(" ".join([toks[0], toks[1], "d"+str(r_id)]))
 			newlines.append(" ".join(["d"+str(r_id), "ARG0", toks[2]]))
 			newlines.append(" ".join(["d"+str(r_id), "ARG1", toks[3]]))
 			d_id += 1
-		# B SYM SNS X  e.g. b0 company n.01 x1
-		elif len(toks) == 4 and is_subclass(toks[2]):
-			assert is_var(toks[3])
-			if sense:
-				newline.append(" ".join([toks[0], toks[1]+"."+toks[2], toks[3]]))
-			else:
-				newline.append(" ".join([toks[0], toks[1], toks[3]]))
-		# B ROL X Y 
-		elif len(toks) == 4:
-			assert toks[1] in ["Name"]
-			if is_realword(toks[2]) and (not is_realword(toks[3])):
-				newline.append(" ".join([toks[0], toks[1]+"_"+toks[2][1:-1], toks[3]]))
-			elif is_realword(toks[3]) and (not is_realword(toks[2])):
-				newline.append(" ".join([toks[0], toks[1]+"_"+toks[3][1:-1], toks[2]]))
-			elif is_var(toks[])
-			else:
-				assert False
-
+		else:
+			assert False
 	return newlines
 
 any_p = [x_p, e_p, s_p, t_p, c_p, p_p, b_p, r_p, k_p]
@@ -272,7 +301,7 @@ def CLFReader(filename, out):
 	out.flush()
 
 def normal_mwe(item):
-	return item.replace("~", "_")
+	return item.replace("_", "~")
 
 def XMLReader(filename, out):
 	tree = ET.parse(filename)
@@ -302,13 +331,15 @@ def XMLReader(filename, out):
 
 cnt = 0
 if __name__ == "__main__":
+	path = sys.argv[1]
 	if path in ["data/silver/p06/d3327","data/silver/p41/d2218", "data/silver/p03/d2739"]: # informal format in xml
-		continue
-	if not os.path.exists(sys.argv[1]+"/en.drs.clf"):
-		continue
-	out = open(path+"/en.drg", "w")
-	out.write("%%% "+" ".join(sys.arg)+"\n")
-	XMLReader(path+"/en.drs.xml", out)
-	CLFReader(path+"/en.drs.clf",out)
-	out.write("\n")
-	out.close()
+		pass 
+	elif not os.path.exists(path+"/en.drs.clf"):
+		pass
+	else: 
+		out = open(path+"/en.drg", "w")
+		out.write("%%% "+" ".join(sys.argv)+"\n")
+		XMLReader(path+"/en.drs.xml", out)
+		CLFReader(path+"/en.drs.clf",out)
+		out.write("\n")
+		out.close()
