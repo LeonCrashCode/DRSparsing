@@ -157,13 +157,14 @@ def tuple_lines(lines):
 			o_id += 1
 		#B EQU/NEQ/APX/LES/LEQ/TPR/TAB X Y
 		elif len(toks) >= 4 and is_B(toks[0]) and toks[1] in ["EQU", "NEQ", "APX", "LES", "LEQ", "TPR", "TAB"] and is_X(toks[2]) and is_X(toks[3]):
+			#assert is_common_var(toks[2]) or is_common_var(toks[3]), "errors on 'B EQU/NEQ/APX/LES/LEQ/TPR/TAB X Y'"
 			newlines.append(" ".join([toks[0], toks[1], "r"+str(r_id)]))
 			newlines.append(" ".join(["r"+str(r_id), "ARG0", toks[2]]))
 			newlines.append(" ".join(["r"+str(r_id), "ARG1", toks[3]]))
 			r_id += 1
 		# B SYM SNS X  e.g. b0 company n.01 x1
 		elif len(toks) >= 4 and is_B(toks[0]) and is_subclass(toks[2]) and is_X(toks[3]):
-			assert is_common_var(toks[3]), "errors on 'B SYM SNS X'"
+			#assert is_common_var(toks[3]), "errors on 'B SYM SNS X'"
 			if sense:
 				newlines.append(" ".join([toks[0], toks[1]+"."+toks[2], toks[3]]))
 			else:
@@ -285,7 +286,7 @@ def XMLReader(filename, out):
 cnt = 0
 if __name__ == "__main__":
 	path = sys.argv[1]
-	if path in ["data/silver/p06/d3327","data/silver/p41/d2218", "data/silver/p03/d2739"]: # informal format in xml
+	if path in ["data/silver/p06/d3327","data/silver/p41/d2218", "data/silver/p03/d2739", "data/silver/p22/d1417"]: # informal format in xml
 		pass 
 	elif not os.path.exists(path+"/en.drs.clf"):
 		pass
