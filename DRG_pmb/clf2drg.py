@@ -16,6 +16,7 @@ sc_p = re.compile("\"[a-z]\.[0-9]+\"")
 r_p = re.compile("r[0-9]+?")
 k_p = re.compile("k[0-9]+?")
 
+
 def is_common_var(item):
 	if x_p.match(item):
 		return True
@@ -68,93 +69,58 @@ def is_subclass(item):
 	else:
 		return False
 
+def is_X(item):
+	if is_var(item) or is_realword(item):
+		return True
+	else:
+		return False
+def is_B(item):
+	return is_drs(item)
+
+def is_C(item):
+	return is_sdrs(item)
+
+def is_SNS(item):
+	return is_subclass(item)
+
+
+GlobalRelation = []
+for line in open("GlobalRelation"):
+	if line[0] == "#":
+		continue
+	GlobalRelation.append(line.strip())
+RhetoricRelation = []
+for line in open("RhetoricRelation"):
+	if line[0] == "#":
+		continue
+	RhetoricRelation.append(line.strip())
+
+
 def normal_lines(lines):
 
-	xb = []
-	xb_cc = []
-	xp = []
-	def is_new_xb(item):
-		if not is_box(item):
-			assert x_p.match(item)
-			if item not in xb:
-				return -1
-			return xb.index(item)
-		return -2
-	def is_new_xp(item):
-		if not p_p.match(item):
-			assert x_p.match(item) or s_p.match(item)
-			if item not in xp:
-				return True
-		return False
-
+	xp = {}
 	for line in lines:
 		line = line.strip()
 		if line[0] == "%":
 			continue
-		line = "%".join(line.split("%")[:1]).strip()
 		toks = line.split()
-		idx = is_new_xb(toks[0])
-		if idx == -1:
-			xb.append(toks[0])
-			if toks[1] == "DRS":
-				xb_cc.append(1)
-			else:
-				xb_cc.append(0)
-		elif idx == -2:
-			pass
-		else:
-			xb_cc[idx] += 1
 
-		if len(toks) == 3:
-			#b DRS b
-			if toks[1] in ["DRS", "NOT", "POS", "NEC"]:
-				idx = is_new_xb(toks[2])
-				if idx == -1:
-					xb.append(toks[2])
-					xb_cc.append(0)
+		#B PRP X B'
+		if len(toks) >= 4 and is_box(toks[0]) and toks[1] == "PRP" and (not p_p.match(toks[2])) and is_box(toks[3]):
+			xp[toks[2]] = "p"+str(100+len(xp))
 
-		if len(toks) == 4:
-			#b PRP p b
-			if toks[1] == "PRP":
-				if is_new_xp(toks[2]):
-					xp.append(toks[2])
-				idx = is_new_xb(toks[3])
-				if idx == -1:
-					xb.append(toks[3])
-					xb_cc.append(0)
 	newlines = []
 	for line in lines:
 		line = line.strip()
 		if line[0] == "%":
+			newlines.append(line)
 			continue
 		toks = line.split()
-		new_toks = []
-		for tok in toks:
-			if tok in xb:
-				if xb_cc[xb.index(tok)] >= 2:
-					new_toks.append("c"+str(10000+xb.index(tok)))
-				else:
-					new_toks.append("b"+str(10000+xb.index(tok)))
-			elif tok in xp:
-				new_toks.append("p"+str(10000+xp.index(tok)))
-			else:
-				new_toks.append(tok)
-		newlines.append(" ".join(new_toks))
-	if len(xb) != 0:
-		print xb
-		print xb_cc
-		for line in lines:
-			print line
-		print "========"
-		for line in newlines:
-			print line
-	if len(xp) != 0:
-		print xp
-		for line in lines:
-			print line
-		print "========"
-		for line in newlines:
-			print line
+
+		for i in range(len(toks)):
+			if is_common_var(toks[i]) and (toks[i] in xp):
+				toks[i] = xp[toks[i]]
+		newlines.append(" ".join(toks))
 	return newlines
 def tuple_lines(lines):
 	v_id = 0
@@ -166,65 +132,66 @@ def tuple_lines(lines):
 		line = line.strip()
 		if line[0] == "%":
 			continue
-		line = "%".join(line.split("%")[:1]).strip()
 		toks = line.split()
 		
 
 		#B REF X
-		if len(toks) == 3 and is_drs(toks[0]) and toks[1] == "REF" and is_common_var(toks[2]):
+		if len(toks) >= 3 and is_B(toks[0]) and toks[1] == "REF" and is_X(toks[2]):
+			assert is_common_var(toks[2]), "errors on 'B REF X'"
 			newlines.append(line)
 		#B NOT/POS/NEC/DRS B'
-		elif len(toks) == 3 and is_drs(toks[0]) and toks[1] in ["NOT", "POS", "NEC", "DRS"] and is_box(toks[2]):
+		elif len(toks) >= 3 and is_B(toks[0]) and toks[1] in ["NOT", "POS", "NEC", "DRS"] and is_B(toks[2]):
 			newlines.append(line)
 		#B IMP/DIS B' B''
-		elif len(toks) == 4 and is_drs(toks[0]) and toks[1] in ["IMP", "DIS"] and is_box(toks[2]) and is_box(toks[3]):
+		elif len(toks) >= 4 and is_B(toks[0]) and toks[1] in ["IMP", "DIS", "DUP"] and is_B(toks[2]) and is_B(toks[3]):
 			newlines.append(" ".join([toks[0], toks[1], "v"+str(v_id)]))
 			newlines.append(" ".join(["v"+str(v_id), "ARG0", toks[2]]))
 			newlines.append(" ".join(["v"+str(v_id), "ARG1", toks[3]]))
 			v_id += 1
 		#B PRP X B'
-		elif len(toks) == 4 and is_drs(toks[0]) and toks[1] == "PRP" and p_p.match(toks[2]) and is_box(toks[3]):
+		elif len(toks) >=4 and is_B(toks[0]) and toks[1] == "PRP" and is_X(toks[2]) and is_B(toks[3]):
+			assert p_p.match(toks[2]), "errors on 'B PRP X B'"
 			newlines.append(" ".join([toks[0], toks[1], "o"+str(o_id)]))
 			newlines.append(" ".join(["o"+str(o_id), "ARG0", toks[2]]))
 			newlines.append(" ".join(["o"+str(o_id), "ARG1", toks[3]]))
 			o_id += 1
 		#B EQU/NEQ/APX/LES/LEQ/TPR/TAB X Y
-		elif len(toks) == 4 and is_drs(toks[0]) and toks[1] in ["EQU", "NEQ", "APX", "LES", "LEQ", "TPR", "TAB"] and is_var(toks[2]) and is_var(toks[3]):
+		elif len(toks) >= 4 and is_B(toks[0]) and toks[1] in ["EQU", "NEQ", "APX", "LES", "LEQ", "TPR", "TAB"] and is_X(toks[2]) and is_X(toks[3]):
 			newlines.append(" ".join([toks[0], toks[1], "r"+str(r_id)]))
 			newlines.append(" ".join(["r"+str(r_id), "ARG0", toks[2]]))
 			newlines.append(" ".join(["r"+str(r_id), "ARG1", toks[3]]))
 			r_id += 1
 		# B SYM SNS X  e.g. b0 company n.01 x1
-		elif len(toks) == 4 and is_drs(toks[0]) and is_subclass(toks[2]) and is_var(toks[3]):
+		elif len(toks) >= 4 and is_B(toks[0]) and is_subclass(toks[2]) and is_X(toks[3]):
+			assert is_common_var(toks[3]), "errors on 'B SYM SNS X'"
 			if sense:
 				newlines.append(" ".join([toks[0], toks[1]+"."+toks[2], toks[3]]))
 			else:
 				newlines.append(" ".join([toks[0], toks[1], toks[3]]))
 
 		# B ROL X Y 
-		elif len(toks) == 4 and is_drs(toks[0]):
-			if toks[1] in ["Name", "Quantity"]:
-				if is_realword(toks[2]) and is_common_var(toks[3]):
-					newlines.append(" ".join([toks[0], toks[1]+"_"+normal_mwe(toks[2][1:-1]), toks[3]]))
-				elif is_realword(toks[3]) and is_common_var(toks[2]):
-					newlines.append(" ".join([toks[0], toks[1]+"_"+normal_mwe(toks[3][1:-1]), toks[2]]))
-				elif is_common_var(toks[2]) and is_common_var(toks[3]):
-					newlines.append(" ".join([toks[0], toks[1], "r"+str(r_id)]))
-					newlines.append(" ".join(["r"+str(r_id), "ARG0", toks[2]]))
-					newlines.append(" ".join(["r"+str(r_id), "ARG1", toks[3]]))
-				else:
-					assert False
-			elif is_common_var(toks[2]) and is_common_var(toks[3]):
+		elif len(toks) >= 4 and is_B(toks[0]) and is_X(toks[2]) and is_X(toks[3]):
+			if toks[1] not in GlobalRelation:
+				print "####G:", line
+			assert toks[1] in GlobalRelation, "errors on 'B ROL X Y'"
+				
+			if is_realword(toks[2]) and is_common_var(toks[3]):
+				newlines.append(" ".join([toks[0], toks[1]+"_"+normal_mwe(toks[2][1:-1]), toks[3]]))
+			elif is_realword(toks[3]) and is_common_var(toks[2]):
+				newlines.append(" ".join([toks[0], toks[1]+"_"+normal_mwe(toks[3][1:-1]), toks[2]]))
+			elif (is_common_var(toks[2]) and is_common_var(toks[3])) or (is_common_var(toks[2]) and is_other_var(toks[3])) or (is_common_var(toks[3]) and is_other_var(toks[2])):
 				newlines.append(" ".join([toks[0], toks[1], "r"+str(r_id)]))
 				newlines.append(" ".join(["r"+str(r_id), "ARG0", toks[2]]))
 				newlines.append(" ".join(["r"+str(r_id), "ARG1", toks[3]]))
 				r_id += 1
 			else:
-				print "####:",line
+				print line
 				assert False
-
 		# B REL B' B''
-		elif len(toks) == 4 and is_sdrs(toks[0]) and is_drs(toks[2]) and is_drs(toks[3]):
+		elif len(toks) >= 4 and is_B(toks[0]) and is_B(toks[2]) and is_B(toks[3]):
+			if toks[1] not in RhetoricRelation:
+				print "####R:", line
+			assert toks[1] in RhetoricRelation, "errors on 'B REL B B'"
 			newlines.append(" ".join([toks[0], toks[1], "d"+str(r_id)]))
 			newlines.append(" ".join(["d"+str(r_id), "ARG0", toks[2]]))
 			newlines.append(" ".join(["d"+str(r_id), "ARG1", toks[3]]))
@@ -233,56 +200,43 @@ def tuple_lines(lines):
 			assert False
 	return newlines
 
-any_p = [x_p, e_p, s_p, t_p, c_p, p_p, b_p, r_p, k_p]
-cls_v = ["x", "e", "s", "t", "c", "p", "b", "r", "k"]
 
-stat_v = [ 0 for i in range(9)]
 def normal_variables(lines):
-	def variable_index(item):
+
+	start_v = ["b", "x", "e", "s", "t", "p", "v", "o", "r", "d"]
+	any_p = []
+	stack_v = [ [] for i in range(10)]
+	for v in start_v:
+		any_p.append(re.compile("^"+v+"[0-9]+?$"))
+
+	def index(v):
 		for i in range(len(any_p)):
-			if any_p[i].match(item):
-				if i == 4: # change every c to b
-					i = 6
+			if any_p[i].match(v):
 				return i
-		assert False, "unrecoginzed variables"
+		return -1
 
-	v = [ [] for i in range(9)]
-	for line in lines:
-		line = line.strip().split()
-		assert len(line) == 3
-		
-		if line[0] not in ["\"speaker\"", "\"hearer\"", "\"now\""]:
-			idx = variable_index(line[0])
-			if line[0] not in v[idx]:
-				v[idx].append(line[0])
-		if line[-1] not in ["\"speaker\"", "\"hearer\"", "\"now\""]:
-			idx = variable_index(line[-1])
-			if line[-1] not in v[idx]:
-				v[idx].append(line[-1])
-
-	for i in range(len(stat_v)):
-		stat_v[i] = max(stat_v[i], len(v[i]))
-
+	def norm(v):
+		if not is_common_var(v):
+			return v
+		idx = index(v)
+		if idx == -1:
+			print v
+		assert idx != -1
+		if v in stack_v[idx]:
+			return start_v[idx]+str(stack_v[idx].index(v))
+		else:
+			stack_v[idx].append(v)
+			return start_v[idx]+str(len(stack_v[idx]) - 1)
+	
 	newlines = []
 	for line in lines:
-		line = line.strip().split()
-		assert len(line) == 3
+		toks = line.strip().split()
+		assert len(toks) >= 3
+		toks[0] = norm(toks[0])
+		toks[2] = norm(toks[2])
+		newlines.append(" ".join(toks[:3]))
 
-		l = line[0]
-		if line[0] not in ["\"speaker\"", "\"hearer\"", "\"now\""]:
-			idx = variable_index(line[0])
-			assert line[0] in v[idx]
-			l = cls_v[idx] + str(v[idx].index(line[0]))
-
-		r = line[-1]
-		if line[-1] not in ["\"speaker\"", "\"hearer\"", "\"now\""]:
-			idx = variable_index(line[-1])
-			assert line[-1] in v[idx]
-			r = cls_v[idx] + str(v[idx].index(line[-1]))
-
-		newlines.append(" ".join([l, line[1], r]))
 	return newlines
-
 
 
 def CLFReader(filename, out):
@@ -291,10 +245,9 @@ def CLFReader(filename, out):
 	for line in open(filename):
 		line = line.strip()
 		lines.append(line)
-
-	#lines = normal_lines(lines)
+	lines = normal_lines(lines)
 	lines = tuple_lines(lines)
-	#lines = normal_variables(lines)
+	lines = normal_variables(lines)
 
 	for line in lines:
 		out.write(line+"\n")
