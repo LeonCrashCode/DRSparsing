@@ -4,6 +4,6 @@ do
 	for d in `ls -d ${1}/${f}/*`
 	do
 		echo ${d}
-		python clf2drg.py ${d}/en.drs.xml ${d}/en.drs.clf > ${d}/en.drg
+		python drg2clf.py  ${d}/en.drg > ${d}/en.clf
 	done
 done

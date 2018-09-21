@@ -166,16 +166,30 @@ def tuple_lines(lines):
 		elif len(toks) >= 4 and is_B(toks[0]) and is_subclass(toks[2]) and is_X(toks[3]):
 			#assert is_common_var(toks[3]), "errors on 'B SYM SNS X'"
 			if sense:
-				newlines.append(" ".join([toks[0], toks[1]+"."+toks[2], toks[3]]))
+				newlines.append(" ".join([toks[0], "Pred", "r"+str(r_id)]))
+				newlines.append(" ".join(["r"+str(r_id), "ARG0", toks[3]]))
+				newlines.append(" ".join(["r"+str(r_id), "ARG1", "\""+toks[1]+"\"."+toks[2]]))
+				r_id += 1
+				#newlines.append(" ".join([toks[0], toks[1]+"."+toks[2], toks[3]]))
 			else:
-				newlines.append(" ".join([toks[0], toks[1], toks[3]]))
+				newlines.append(" ".join([toks[0], "Pred", "r"+str(r_id)]))
+				newlines.append(" ".join(["r"+str(r_id), "ARG0", toks[3]]))
+				newlines.append(" ".join(["r"+str(r_id), "ARG1", "\""+toks[1]+"\""]))
+				r_id += 1
+				#newlines.append(" ".join([toks[0], toks[1], toks[3]]))
 
 		# B ROL X Y 
 		elif len(toks) >= 4 and is_B(toks[0]) and is_X(toks[2]) and is_X(toks[3]):
 			if toks[1] not in GlobalRelation:
 				print "####G:", line
 			assert toks[1] in GlobalRelation, "errors on 'B ROL X Y'"
-				
+
+			newlines.append(" ".join([toks[0], toks[1], "r"+str(r_id)]))
+			newlines.append(" ".join(["r"+str(r_id), "ARG0", normal_mwe(toks[2])]))
+			newlines.append(" ".join(["r"+str(r_id), "ARG1", normal_mwe(toks[3])]))
+			r_id += 1
+
+			"""
 			if is_realword(toks[2]) and is_common_var(toks[3]):
 				newlines.append(" ".join([toks[0], toks[1]+"_"+normal_mwe(toks[2][1:-1]), toks[3]]))
 			elif is_realword(toks[3]) and is_common_var(toks[2]):
@@ -188,6 +202,7 @@ def tuple_lines(lines):
 			else:
 				print line
 				assert False
+			"""
 		# B REL B' B''
 		elif len(toks) >= 4 and is_B(toks[0]) and is_B(toks[2]) and is_B(toks[3]):
 			if toks[1] not in RhetoricRelation:
@@ -240,7 +255,7 @@ def normal_variables(lines):
 	return newlines
 
 
-def CLFReader(filename, out):
+def CLFReader(filename):
 
 	lines = []
 	for line in open(filename):
@@ -250,14 +265,12 @@ def CLFReader(filename, out):
 	lines = tuple_lines(lines)
 	lines = normal_variables(lines)
 
-	for line in lines:
-		out.write(line+"\n")
-	out.flush()
+	print "\n".join(lines)
 
 def normal_mwe(item):
 	return item.replace("_", "~")
 
-def XMLReader(filename, out):
+def XMLReader(filename):
 	tree = ET.parse(filename)
 	root = tree.getroot()
 
@@ -280,20 +293,19 @@ def XMLReader(filename, out):
 		if f < 0 or t < 0:
 			raws.pop()
 			lems.pop()
-	out.write(" ".join(raws).encode("UTF-8")+"\n")
-	out.write(" ".join(lems).encode("UTF-8")+"\n")
+	print " ".join(raws).encode("UTF-8")
+	print " ".join(lems).encode("UTF-8")
 
 cnt = 0
 if __name__ == "__main__":
-	path = sys.argv[1]
+	path = "/".join(sys.argv[1].split("/")[:4])
 	if path in ["data/silver/p06/d3327","data/silver/p41/d2218", "data/silver/p03/d2739", "data/silver/p22/d1417"]: # informal format in xml
 		pass 
-	elif not os.path.exists(path+"/en.drs.clf"):
+	elif not os.path.exists(sys.argv[2]):
 		pass
 	else: 
-		out = open(path+"/en.drg", "w")
-		out.write("%%% "+" ".join(sys.argv)+"\n")
-		XMLReader(path+"/en.drs.xml", out)
-		CLFReader(path+"/en.drs.clf",out)
-		out.write("\n")
-		out.close()
+		print "###", " ".join(sys.argv)
+		XMLReader(sys.argv[1])
+		print "Graph"
+		CLFReader(sys.argv[2])
+		print
