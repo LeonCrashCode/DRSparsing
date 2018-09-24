@@ -122,6 +122,8 @@ def normal_lines(lines):
 				toks[i] = xp[toks[i]]
 		newlines.append(" ".join(toks))
 	return newlines
+
+
 def tuple_lines(lines):
 	v_id = 0
 	o_id = 0
@@ -145,22 +147,22 @@ def tuple_lines(lines):
 		#B IMP/DIS B' B''
 		elif len(toks) >= 4 and is_B(toks[0]) and toks[1] in ["IMP", "DIS", "DUP"] and is_B(toks[2]) and is_B(toks[3]):
 			newlines.append(" ".join([toks[0], toks[1], "v"+str(v_id)]))
-			newlines.append(" ".join(["v"+str(v_id), "ARG0", toks[2]]))
-			newlines.append(" ".join(["v"+str(v_id), "ARG1", toks[3]]))
+			newlines.append(" ".join(["v"+str(v_id), "ARG0", (toks[2])]))
+			newlines.append(" ".join(["v"+str(v_id), "ARG1", (toks[3])]))
 			v_id += 1
 		#B PRP X B'
 		elif len(toks) >=4 and is_B(toks[0]) and toks[1] == "PRP" and is_X(toks[2]) and is_B(toks[3]):
 			assert p_p.match(toks[2]), "errors on 'B PRP X B'"
 			newlines.append(" ".join([toks[0], toks[1], "o"+str(o_id)]))
-			newlines.append(" ".join(["o"+str(o_id), "ARG0", toks[2]]))
-			newlines.append(" ".join(["o"+str(o_id), "ARG1", toks[3]]))
+			newlines.append(" ".join(["o"+str(o_id), "ARG0", (toks[2])]))
+			newlines.append(" ".join(["o"+str(o_id), "ARG1", (toks[3])]))
 			o_id += 1
 		#B EQU/NEQ/APX/LES/LEQ/TPR/TAB X Y
 		elif len(toks) >= 4 and is_B(toks[0]) and toks[1] in ["EQU", "NEQ", "APX", "LES", "LEQ", "TPR", "TAB"] and is_X(toks[2]) and is_X(toks[3]):
 			#assert is_common_var(toks[2]) or is_common_var(toks[3]), "errors on 'B EQU/NEQ/APX/LES/LEQ/TPR/TAB X Y'"
 			newlines.append(" ".join([toks[0], toks[1], "r"+str(r_id)]))
-			newlines.append(" ".join(["r"+str(r_id), "ARG0", toks[2]]))
-			newlines.append(" ".join(["r"+str(r_id), "ARG1", toks[3]]))
+			newlines.append(" ".join(["r"+str(r_id), "ARG0", (toks[2])]))
+			newlines.append(" ".join(["r"+str(r_id), "ARG1", (toks[3])]))
 			r_id += 1
 		# B SYM SNS X  e.g. b0 company n.01 x1
 		elif len(toks) >= 4 and is_B(toks[0]) and is_subclass(toks[2]) and is_X(toks[3]):
@@ -183,10 +185,9 @@ def tuple_lines(lines):
 			if toks[1] not in GlobalRelation:
 				print "####G:", line
 			assert toks[1] in GlobalRelation, "errors on 'B ROL X Y'"
-
 			newlines.append(" ".join([toks[0], toks[1], "r"+str(r_id)]))
-			newlines.append(" ".join(["r"+str(r_id), "ARG0", normal_mwe(toks[2])]))
-			newlines.append(" ".join(["r"+str(r_id), "ARG1", normal_mwe(toks[3])]))
+			newlines.append(" ".join(["r"+str(r_id), "ARG0", (toks[2])]))
+			newlines.append(" ".join(["r"+str(r_id), "ARG1", (toks[3])]))
 			r_id += 1
 
 			"""
@@ -209,8 +210,8 @@ def tuple_lines(lines):
 				print "####R:", line
 			assert toks[1] in RhetoricRelation, "errors on 'B REL B B'"
 			newlines.append(" ".join([toks[0], toks[1], "d"+str(r_id)]))
-			newlines.append(" ".join(["d"+str(r_id), "ARG0", toks[2]]))
-			newlines.append(" ".join(["d"+str(r_id), "ARG1", toks[3]]))
+			newlines.append(" ".join(["d"+str(r_id), "ARG0", (toks[2])]))
+			newlines.append(" ".join(["d"+str(r_id), "ARG1", (toks[3])]))
 			d_id += 1
 		else:
 			assert False
@@ -232,7 +233,7 @@ def normal_variables(lines):
 		return -1
 
 	def norm(v):
-		if not is_common_var(v):
+		if not (is_common_var(v) or is_drs(v) or is_sdrs(v)):
 			return v
 		idx = index(v)
 		if idx == -1:
@@ -299,7 +300,7 @@ def XMLReader(filename):
 cnt = 0
 if __name__ == "__main__":
 	path = "/".join(sys.argv[1].split("/")[:4])
-	if path in ["data/silver/p06/d3327","data/silver/p41/d2218", "data/silver/p03/d2739", "data/silver/p22/d1417"]: # informal format in xml
+	if path in ["data/silver/p06/d3327","data/silver/p41/d2218", "data/silver/p03/d2739", "data/silver/p22/d1417", "data/silver/p74/d0943"]: # informal format in xml
 		pass 
 	elif not os.path.exists(sys.argv[2]):
 		pass
