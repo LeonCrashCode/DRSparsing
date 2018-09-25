@@ -170,13 +170,13 @@ def tuple_lines(lines):
 			if sense:
 				newlines.append(" ".join([toks[0], "Pred", "r"+str(r_id)]))
 				newlines.append(" ".join(["r"+str(r_id), "ARG0", toks[3]]))
-				newlines.append(" ".join(["r"+str(r_id), "ARG1", "\""+toks[1]+"\"."+toks[2]]))
+				newlines.append(" ".join(["r"+str(r_id), "ARG1", "\""+correct(normal_mwe(toks[1]))+"\"."+toks[2]]))
 				r_id += 1
 				#newlines.append(" ".join([toks[0], toks[1]+"."+toks[2], toks[3]]))
 			else:
 				newlines.append(" ".join([toks[0], "Pred", "r"+str(r_id)]))
 				newlines.append(" ".join(["r"+str(r_id), "ARG0", toks[3]]))
-				newlines.append(" ".join(["r"+str(r_id), "ARG1", "\""+toks[1]+"\""]))
+				newlines.append(" ".join(["r"+str(r_id), "ARG1", "\""+correct(normal_mwe(toks[1]))+"\""]))
 				r_id += 1
 				#newlines.append(" ".join([toks[0], toks[1], toks[3]]))
 
@@ -186,8 +186,8 @@ def tuple_lines(lines):
 				print "####G:", line
 			assert toks[1] in GlobalRelation, "errors on 'B ROL X Y'"
 			newlines.append(" ".join([toks[0], toks[1], "r"+str(r_id)]))
-			newlines.append(" ".join(["r"+str(r_id), "ARG0", (toks[2])]))
-			newlines.append(" ".join(["r"+str(r_id), "ARG1", (toks[3])]))
+			newlines.append(" ".join(["r"+str(r_id), "ARG0", correct(normal_mwe(toks[2]))]))
+			newlines.append(" ".join(["r"+str(r_id), "ARG1", correct(normal_mwe(toks[3]))]))
 			r_id += 1
 
 			"""
@@ -268,6 +268,48 @@ def CLFReader(filename):
 
 	print "\n".join(lines)
 
+def correct(item):
+	if item == "\"1~5~0\"":
+		return "\"1.5.0\""
+	if item == "\"stl~3456\"":
+		return "\"stl#3456\""
+	if item == "\"3~000\"":
+		return "\"3,000\""
+	if item == "\"13~7\"":
+		return "\"13.7\""
+	if item == "\"1~700-pound\"":
+		return "\"1,700-pound\""
+	if item == "\"1~000-megawatt\"":
+		return "\"1,000-megawatt\""
+	if item == "\"8~586-meter\"":
+		return "\"8,586-meter\""
+	if item == "\"4~387\"":
+		return "\"4.387\""
+	if item == "\"32~000\"":
+		return "\"32,000\""
+	if item == "\"5~\"":
+		return "\"5%\""
+	if item == "\"145~099\"":
+		return "\"145,099\""
+	if item == "\"hans@karlolo~net\"":
+		return "\"hans@karlolo.net\""
+	if item == "\"hirosey@genet~co~jp\"":
+		return "\"hirosey@genet.co.jp\""
+	if item == "\"7~000\"":
+		return "\"7,000\""
+	if item == "\"20~000\"":
+		return "\"20,000\""
+	if item == "\"14~000\"":
+		return "\"14,000\""
+	if item == "\"150~000\"":
+		return "\"150,000\""
+	if item == "\"deane~~adams~and~deane\"":
+		return "\"deane,~adams~and~deane\""
+	if item == "\"c~\"":
+		return "\"c#\""
+	if item == "\"~~~\"":
+		return "\"...\""
+	return item
 def normal_mwe(item):
 	return item.replace("_", "~")
 

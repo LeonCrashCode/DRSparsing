@@ -34,17 +34,21 @@ def pack(lines):
 #	if len(root.split("/")) != 3:
 #		continue
 if __name__ == "__main__":
-	print "###", " ".join(sys.argv)
-	lines = []
-	for line in open(sys.argv[1]):
-		line = line.strip()
-		if line == "" or line[0] == "#":
-			continue
-		lines.append(line)
-	idx = lines.index("Graph")
-	print "\n".join(lines[:idx])
-	print "Graph"
-	lines = pack(lines[idx+1:])
-	print "\n".join(lines)
-	print
+	if not os.path.exists(sys.argv[1]):
+		pass
+	else:
+		print "###", " ".join(sys.argv)
+		lines = []
+		for line in open(sys.argv[1]):
+			line = line.strip()
+			if line == "" or line[0] == "#":
+				continue
+			lines.append(line)
+		if len(lines) != 0:
+			idx = lines.index("Graph")
+			print "\n".join(lines[:idx])
+			print "Graph"
+			lines = pack(lines[idx+1:])
+			print "\n".join(lines)
+			print
 
