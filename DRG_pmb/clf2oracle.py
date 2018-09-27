@@ -66,12 +66,13 @@ def drg2oracle(lemmas, lines, out_action):
 			elif is_realword(tok):
 				if tok[1:-1] in lem:
 					#newline.append("\"$"+",".join(index(lem, tok[1:-1]))+"\"")
-					newline.append("$"+",".join(index(lem, tok[1:-1])))
+					#newline.append("$"+",".join(index(lem, tok[1:-1])))
+					newline.append("$"+index(lem, tok[1:-1])[0])
 				else:
 					newline.append(tok)
 			else:
 				if tok in lem:
-					newline.append("$"+",".join(index(lem, tok)))
+					newline.append("$"+index(lem, tok)[0])
 				else:
 					newline.append(tok)
 		newline.append("|||")
