@@ -35,6 +35,7 @@ def is_realword(item):
 node = {}
 edge = {}
 var = {}
+max_tuple_cnt = 0
 def add(k,d):
 	if k in d:
 		d[k] += 1
@@ -42,6 +43,8 @@ def add(k,d):
 		d[k] = 1
 def stat(line):
 	line = line.split("|||")
+	global max_tuple_cnt
+	max_tuple_cnt = max(len(line), max_tuple_cnt)
 	for l in line:
 		toks = l.split()
 		assert len(toks) in [3,4]
@@ -75,3 +78,5 @@ if __name__ == "__main__":
 	for key in var.keys():
 		out.write(key+" "+str(var[key])+"\n")
 	out.close()
+
+	print max_tuple_cnt

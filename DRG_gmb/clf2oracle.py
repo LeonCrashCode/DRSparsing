@@ -102,9 +102,11 @@ if __name__ == "__main__":
 		line = line.strip()
 		if line == "":
 			idx = lines.index("Graph")
-			out_input.write("\n".join(lines[:idx]))
+
 			assert idx % 2 == 0 and idx != 0
-			lemmas = " ".join([ lines[i*2+1] for i in range(idx/2) ]) 
+			lemmas = " ".join([ lines[i*2+1] for i in range(idx/2) ])
+			words = " ".join([ lines[i*2] for i in range(idx/2) ])
+			out_input.write("\n".join([words, lemmas]))
 			out_input.write("\n\n")
 			drg2oracle(lemmas, lines[idx+1:], out_action)
 			out_input.flush()
