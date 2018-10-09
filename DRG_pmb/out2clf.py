@@ -18,6 +18,23 @@ def read_output(filename):
 		o.append(line)
 	return o
 
+def addsense(output):
+	output = output.split()
+	if output[-1] == "<END>":
+		output.pop()
+	if output[-1] == "|||":
+		output.pop()
+	output = " ".join(output)
+	output = output.split("|||")
+	for i in range(len(output)):
+		toks = output[i].split()
+		if toks[1] in ["REF", "DRS", "PRP", "NOT", "NEC", "POS", "IMP", "DUP", "OR", "EQU", "NEQ", "APX", "LES", "LEQ", "TPR", "TAB"]:
+			continue
+		if len(toks) == 4:
+			continue
+		output[i] = " ".join([toks[0], toks[1], "\"n.01\"", toks[2]])
+	return " ||| ".join(output)
+
 def out2clf(output, input):
 	vs = ["B", "X", "E", "S", "T", "P"]
 	count = [0 for i in range(6)] # b x e s t p
@@ -57,6 +74,7 @@ if __name__ == "__main__":
 	assert len(inputs) == len(outputs)
 
 	for i in range(len(inputs)):
+		outputs[i] = addsense(outputs[i])
 		out2clf(outputs[i], inputs[i][1])
 		print
 		print 
