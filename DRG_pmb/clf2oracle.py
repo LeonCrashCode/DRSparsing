@@ -63,7 +63,7 @@ def drg2oracle(lemmas, lines, out_action):
 					v.append(tok)
 				else:
 					newline.append(tok)
-			elif re.match("^\"[avnr]\.\d\d\"$", tok):
+			elif re.match("^\"[avnr]\.\d+\"$", tok):
 				newline.append(tok)
 			elif is_realword(tok):
 				if tok[1:-1] in lem:
