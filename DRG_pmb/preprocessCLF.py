@@ -3,7 +3,7 @@ import sys
 import xml.etree.ElementTree as ET
 import re
 
-sense = False
+sense = int(sys.argv[3])
 x_p = re.compile("^x[0-9]+$")
 e_p = re.compile("^e[0-9]+$")
 s_p = re.compile("^s[0-9]+$")
@@ -150,7 +150,9 @@ def tuple_lines(lines):
 		elif len(toks) >= 4 and is_B(toks[0]) and is_subclass(toks[2]) and is_X(toks[3]):
 			#assert is_common_var(toks[3]), "errors on 'B SYM SNS X'"
 			if sense:
+				#print toks[1]
 				toks[1] = correct(normal_mwe(toks[1]))
+				#print toks[1]
 				newlines.append(" ".join(toks))
 				#newlines.append(" ".join([toks[0], toks[1]+"."+toks[2], toks[3]]))
 			else:
@@ -237,46 +239,46 @@ def CLFReader(filename):
 	print "\n".join(lines)
 
 def correct(item):
-	if item == "\"1~5~0\"":
-		return "\"1.5.0\""
-	if item == "\"stl~3456\"":
-		return "\"stl#3456\""
-	if item == "\"3~000\"":
-		return "\"3,000\""
-	if item == "\"13~7\"":
-		return "\"13.7\""
-	if item == "\"1~700-pound\"":
-		return "\"1,700-pound\""
-	if item == "\"1~000-megawatt\"":
-		return "\"1,000-megawatt\""
-	if item == "\"8~586-meter\"":
-		return "\"8,586-meter\""
-	if item == "\"4~387\"":
-		return "\"4.387\""
-	if item == "\"32~000\"":
-		return "\"32,000\""
-	if item == "\"5~\"":
-		return "\"5%\""
-	if item == "\"145~099\"":
-		return "\"145,099\""
-	if item == "\"hans@karlolo~net\"":
-		return "\"hans@karlolo.net\""
-	if item == "\"hirosey@genet~co~jp\"":
-		return "\"hirosey@genet.co.jp\""
-	if item == "\"7~000\"":
-		return "\"7,000\""
-	if item == "\"20~000\"":
-		return "\"20,000\""
-	if item == "\"14~000\"":
-		return "\"14,000\""
-	if item == "\"150~000\"":
-		return "\"150,000\""
-	if item == "\"deane~~adams~and~deane\"":
-		return "\"deane,~adams~and~deane\""
-	if item == "\"c~\"":
-		return "\"c#\""
-	if item == "\"~~~\"":
-		return "\"...\""
+	if item == "1~5~0":
+		return "1.5.0"
+	if item == "stl~3456":
+		return "stl#3456"
+	if item == "3~000":
+		return "3,000"
+	if item == "13~7":
+		return "13.7"
+	if item == "1~700-pound":
+		return "1,700-pound"
+	if item == "1~000-megawatt":
+		return "1,000-megawatt"
+	if item == "8~586-meter":
+		return "8,586-meter"
+	if item == "4~387":
+		return "4.387"
+	if item == "32~000":
+		return "32,000"
+	if item == "5~":
+		return "5%"
+	if item == "145~099":
+		return "145,099"
+	if item == "hans@karlolo~net":
+		return "hans@karlolo.net"
+	if item == "hirosey@genet~co~jp":
+		return "hirosey@genet.co.jp"
+	if item == "7~000":
+		return "7,000"
+	if item == "20~000":
+		return "20,000"
+	if item == "14~000":
+		return "14,000"
+	if item == "150~000":
+		return "150,000"
+	if item == "deane~~adams~and~deane":
+		return "deane,~adams~and~deane"
+	if item == "c~":
+		return "c#"
+	if item == "~~~":
+		return "..."
 	return item
 def normal_mwe(item):
 	return item.replace("_", "~")

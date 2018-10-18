@@ -36,7 +36,19 @@ def get_projectoin(parent):
 			projection[name] = label
 	for child in parent:
 		get_projectoin(child)
+DRS = {}
+def get_DRS(parent, prev_label):
+	if parent.tag in ["sdrs", "drs"]:
+		prev_label = parent.attrib["label"]
 
+	if parent.tag == "drel":
+		arg1 = parent.attrib["arg1"]
+		arg2 = parent.attrib["arg2"]
+
+		DRS[prev_label+"_"+k2b[arg1]] = 1
+		DRS[prev_label+"_"+k2b[arg2]] = 1
+	for child in parent:
+		get_DRS(child,prev_label)
 ### normalize common variables to p
 def normal_p(parent):
 
@@ -69,16 +81,21 @@ def normal_p(parent):
 
 
 
-sense = False
+sense = int(sys.argv[2])
 tuples = []
 d_id = 0
 v_id = 0
 r_id = 0
 o_id = 0
 assign = {}
+
 def sdrs(parent, prev_label):
+	global DRS
 	if prev_label != "":
-		tuples.append([prev_label, "DRS", parent.attrib["label"]])
+		key = prev_label+"_"+parent.attrib["label"]
+		if (key in DRS) and DRS[key] == 1:
+			tuples.append([prev_label, "DRS", parent.attrib["label"]])
+			DRS[key] = 0
 	for child in parent:
 		if child.tag == "constituents":
 			constituents(child, parent.attrib["label"])
@@ -131,7 +148,10 @@ def sub(parent, prev_label):
 def drs(parent, prev_label):
 	if prev_label != "":
 		assert br.match(parent.attrib["label"])
-		tuples.append([prev_label, "DRS", parent.attrib["label"]])
+		key = prev_label+"_"+parent.attrib["label"]
+		if (key in DRS) and DRS[key] == 1:
+			tuples.append([prev_label, "DRS", parent.attrib["label"]])
+			DRS[key] = 0
 	for child in parent:
 		if child.tag == "tokens":
 			pass
@@ -179,13 +199,15 @@ def pred(parent, prev_label, cond_label):
 	symbol = parent.attrib["symbol"]
 	typ = parent.attrib["type"]
 	sen = parent.attrib["sense"]
+	if len(sen) == 1:
+		sen = "0" + sen
 	if arg not in assign:
 		tuples.append([projection[arg], "REF", arg])
 		assign[arg] = 1
 	tuples.append([cond_label, "Pred", "r"+str(r_id)])
 	tuples.append(["r"+str(r_id), "ARG0", arg])
 	if sense:
-		tuples.append(["r"+str(r_id), "ARG1", "\""+symbol+"\"."+typ+sen])
+		tuples.append(["r"+str(r_id), "ARG1", "\""+symbol+"\"."+typ+"."+sen])
 	else:
 		tuples.append(["r"+str(r_id), "ARG1", "\""+symbol+"\""])
 	r_id += 1
@@ -300,6 +322,7 @@ def drg(parent):
 	add_pointer(parent)
 	get_k2b(parent)
 	get_projectoin(parent)
+	get_DRS(parent, "")
 
 	if parent.tag == "sdrs":
 		sdrs(parent, prev_label = "")
@@ -314,6 +337,9 @@ def drg(parent):
 		print " ".join(t).encode("utf8")
 	print
 
+	global DRS
+	for key in DRS.keys():
+		assert DRS[key] == 0
 def taggedtokens(parent):
 	def get_value(parent, t):
 		for child in parent:

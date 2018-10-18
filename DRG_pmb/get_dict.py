@@ -10,7 +10,7 @@ b_p = re.compile("^b[0-9]+$")
 cpy1_p = re.compile("^\"\$[0-9|,]+\"")
 cpy2_p = re.compile("^\$[0-9|,]+")
 
-predefined = ["|||", "DRS", "REF", "PRP", "NOT", "NEC", "POS", "IMP", "DUP", "OR", "EQU", "NEQ", "APX", "LES", "LEQ", "TPR", "TAB"]
+predefined = ["DRS", "REF", "PRP", "NOT", "NEC", "POS", "IMP", "DUP", "OR", "EQU", "NEQ", "APX", "LES", "LEQ", "TPR", "TAB"]
 def is_var(item):
 	if x_p.match(item):
 		return True
@@ -33,12 +33,12 @@ def is_realword(item):
 	else:
 		return False
 
-node = {}
-def add(k,d):
-	if k in d:
-		d[k] += 1
-	else:
-		d[k] = 1
+node_rel = {}
+node_pred = {}
+node_sense = {}
+node_special = {}
+node_dis_rel = {}
+node_extra_constant = {}
 def stat(line):
 	line = line.split("|||")
 	for l in line:
@@ -54,17 +54,42 @@ def stat(line):
 			elif cpy1_p.match(tok) or cpy2_p.match(tok):
 				pass
 			else:
-				add(tok, node)
+				if re.match("^\"[avnr]\.\d+\"$", tok):
+					node_sense.setdefault(tok)
+				elif tok in ["\"speaker\"", "\"hearer\"", "\"now\""]:
+					node_special.setdefault(tok)
+				elif len(tok) > 2 and tok[0] == "\"" and tok[-1] == "\"":
+					node_extra_constant.setdefault(tok)
+				elif tok.isupper():
+					node_dis_rel.setdefault(tok)
+				elif tok[0].isupper():
+					node_rel.setdefault(tok)
+				else:
+					node_pred.setdefault(tok)
+					
+					
 
-
-	
-if __name__ == "__main__":
-	print "\n".join(predefined)
-	lines = []
-	for line in open(sys.argv[1]):
-		line = line.strip()
-		stat(line)
+def show(node, label):
+	print label
 	keys = node.keys()
 	keys.sort()
 	for key in keys:
 		print key
+	print "###"
+	
+if __name__ == "__main__":
+	print "### BOX"
+	print "\n".join(predefined)
+	print "###"
+	lines = []
+	for line in open(sys.argv[1]):
+		line = line.strip()
+		stat(line)
+
+	show(node_special, "### SPECIAL")
+	show(node_sense, "### SENSE")
+	show(node_dis_rel, "### DISCOURSE")
+	show(node_rel, "### RELATION")
+	show(node_pred, "### PREDICATE")
+	show(node_extra_constant, "### CONSTANT")
+	

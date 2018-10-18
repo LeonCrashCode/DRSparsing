@@ -4,6 +4,6 @@ do
 	for d in `ls -d data/${f}/*`
 	do
 		echo ${d}
-		python drs2drg.py ${d}/en.drs.xml > ${d}/en.drg2
+		python drs2drg.py ${d}/en.drs.xml 0 > ${d}/en.drg.nosense
 	done
 done
