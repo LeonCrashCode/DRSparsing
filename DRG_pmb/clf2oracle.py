@@ -85,9 +85,9 @@ if __name__ == "__main__":
 	manual_correct_list = []
 	for line in open("manual_correct"):
 		line = line.strip()
-		if line == "" or line[0] == "#":
+		if line == "":
 			continue
-		manual_correct_list.append(line)
+		manual_correct_list.append(line.split()[-2])
 	lines = []
 	filename = ""
 	out_input = open(sys.argv[1]+".oracle.input", "w")
