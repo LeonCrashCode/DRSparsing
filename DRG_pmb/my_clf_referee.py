@@ -643,7 +643,7 @@ if __name__ == '__main__':
     for (i, clf) in enumerate(clfs):
         #print i
         #print clf
-        counter_prog(i)
+        #counter_prog(i)
         if args.v >= 2 and raws: print ' "{}"'.format(raws[i]) 
         try:
             (mbox, box_dict, subs, op_types) = check_clf(clf, signature, v=args.v)
@@ -653,9 +653,9 @@ if __name__ == '__main__':
             print raws[i]
             if args.v >= 1: 
                 print "In the CLF:\n{}".format(pr_clf(clf))                
-    print "Done"
+    #print "Done"
     error_total = sum(error_counter.values())
-    print "#wrong = {} ({:.2f}%)".format(error_total, error_total*100/float(total))  
+    #print "#wrong = {} ({:.2f}%)".format(error_total, error_total*100/float(total))  
     if args.v >= 1:
         # print frequency of errors
         if error_counter: print "Error frequency"
