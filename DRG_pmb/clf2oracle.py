@@ -88,6 +88,11 @@ if __name__ == "__main__":
 		if line == "":
 			continue
 		illform.append(line.split()[-2])
+	for line in open("manual_correct"):
+		line = line.strip()
+		if line == "" or line[0] == "#":
+			continue
+		illform.append(line)
 	lines = []
 	filename = ""
 	out_input = open(sys.argv[1]+".oracle.input", "w")
