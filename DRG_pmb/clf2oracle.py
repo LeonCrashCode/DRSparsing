@@ -82,12 +82,22 @@ def drg2oracle(lemmas, lines, out_action):
 	out_action.write(" ".join(newline[:-1])+"\n")
 			
 if __name__ == "__main__":
+	manual_correct_list = []
+	for line in open("manual_correct"):
+		line = line.strip()
+		if line == "" or line[0] == "#":
+			continue
+		manual_correct_list.append(line)
 	lines = []
+	filename = ""
 	out_input = open(sys.argv[1]+".oracle.input", "w")
 	out_action = open(sys.argv[1]+".oracle.action", "w")
 	for line in open(sys.argv[1]):
 		line = line.strip()
 		if line == "":
+			if filename in manual_correct_list:
+				lines = []
+				continue
 			idx = lines.index("Graph")
 			
 			assert idx % 2 == 0 and idx != 0
@@ -101,6 +111,7 @@ if __name__ == "__main__":
 			lines = []
 		else:
 			if line[0] == "#":
+				filename = line.split()[-2]
 				continue
 			lines.append(line)
 	out_input.close()
