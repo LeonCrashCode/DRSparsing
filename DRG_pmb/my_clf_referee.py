@@ -21,6 +21,8 @@ from collections import Counter
 #################################
 def check_clf(clf, signature, v=0):
     '''checks well-formedness of a clausal form'''
+    # REF should be once
+    clf_ref(clf)
     # get argument typing and for each clause an operator type 
     (op_types, arg_typing) = clf_typing(clf, signature, v=v)
     #print op_types
@@ -50,7 +52,18 @@ def counter_prog(i):
     sys.stdout.write('\r{}:'.format(i))
     sys.stdout.flush()
     return True
-    
+
+def clf_ref(clf):
+    ref_dict = {}
+    for cl in clf:
+        if cl[1] == "REF":
+            if cl[2] in ref_dict:
+                report_error("multiple ref")
+            else:
+                ref_dict[cl[2]] = cl[0]
+        if cl[1].upper() and len(cl) == 4:
+            if cl[2] == cl[3]:
+                report_error("discourse relation for single boxes")
 
 #################################    
 def clf_typing(clf, signature, v=0):
