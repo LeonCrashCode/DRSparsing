@@ -44,6 +44,11 @@ def pack(lines, context):
 		if toks[1] in ["REF", "POS", "NEC", "NOT", "DRS"]:
 			newline.append(line)
 			continue
+		if toks[1] in ["PRP", "DUPLEX", "IMP", "OR"]:
+			if toks[1] == "DUPLEX":
+				toks[1] = "DUP"
+			newline.append(" ".join([toks[0]]+argset[toks[2]]))
+			continue
 		if toks[1] == "Pred":
 			newline.append(" ".join([toks[0], handle_sense(argset[toks[2]][1]), argset[toks[2]][0]]))
 			continue
