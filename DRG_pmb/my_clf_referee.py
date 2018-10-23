@@ -23,6 +23,7 @@ def check_clf(clf, signature, v=0):
     '''checks well-formedness of a clausal form'''
     # REF should be once
     clf_ref(clf)
+    multiple_clf(clf)
     # get argument typing and for each clause an operator type 
     (op_types, arg_typing) = clf_typing(clf, signature, v=v)
     #print op_types
@@ -61,10 +62,16 @@ def clf_ref(clf):
                 report_error("multiple ref")
             else:
                 ref_dict[cl[2]] = cl[0]
-        if cl[1].upper() and len(cl) == 4:
-            if cl[2] == cl[3]:
+        if cl[1].isupper() and len(cl) == 4:
+            if cl[2] == cl[3] and cl[2][0] == "b" and cl[3][0] == "b":
                 report_error("discourse relation for single boxes")
-
+def multiple_clf(clf):
+    cl_dict={}
+    for cl in clf:
+	if " ".join(list(cl)) in cl_dict:
+	    report_error("multiple cl")
+	else:
+	    cl_dict[" ".join(list(cl))] = 1
 #################################    
 def clf_typing(clf, signature, v=0):
     '''Checks well-formedness of a clausal for in terms of typing.
