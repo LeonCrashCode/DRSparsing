@@ -46,35 +46,42 @@ def out2clf(output, input):
 	if output[-1] == "|||":
 		output.pop()
 	cnt = 0
+	new_output = []
+	tup = []	
 	for item in output:
 		cnt += 1
 		if item == "|||":
 			cnt = 0
-			print
+			if " ".join(tup) not in new_output:
+				new_output.append(" ".join(tup))
+			tup = []
 		elif item in vs:
 			idx = vs.index(item)
-			print item.lower()+str(count[idx]),
+			tup.append(item.lower()+str(count[idx]))
 			count[idx] += 1
 		elif p.match(item):
 			if cnt == 2:
-				print input[int(item[1:])],
+				tup.append(input[int(item[1:])])
 			else:
-				print "\""+input[int(item[1:])]+"\"",
+				tup.append("\""+input[int(item[1:])]+"\"")
 		else:
-			print item,
-
-
+			tup.append(item)
+	if len(tup) != 0 and (" ".join(tup) not in new_output):
+		new_output.append(" ".join(tup))
+	print "\n".join(new_output)
+	
 if __name__ == "__main__":
 	inputs = read_input(sys.argv[1])
 	outputs = read_output(sys.argv[2])
 
-	print "#", " ".join(sys.argv)
+	#print "#", " ".join(sys.argv)
 	#print len(inputs)
 	#print len(outputs)
 	assert len(inputs) == len(outputs)
 
 	for i in range(len(inputs)):
-		outputs[i] = addsense(outputs[i])
+		if len(sys.argv) >= 4 and sys.argv[3] == "nosense":
+			outputs[i] = addsense(outputs[i])
 		out2clf(outputs[i], inputs[i][1])
 		print
 		print 
