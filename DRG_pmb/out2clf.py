@@ -84,4 +84,3 @@ if __name__ == "__main__":
 			outputs[i] = addsense(outputs[i])
 		out2clf(outputs[i], inputs[i][1])
 		print
-		print 
