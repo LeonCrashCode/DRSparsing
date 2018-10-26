@@ -27,4 +27,4 @@ for line in open(sys.argv[2]):
 assert len(raws) == len(drss)
 
 for i in range(len(raws)):
-	print " ".join(raws[i]), "$$$","|||".join(drss[i])
+	print " ".join(raws[i]), "$$$"," ||| ".join(drss[i])
