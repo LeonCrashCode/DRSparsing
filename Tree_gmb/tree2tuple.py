@@ -1,23 +1,8 @@
 import sys
-from sets import Set
 import re
 
-kp_r = re.compile("^K([0-9]+)\($")
-pp_r = re.compile("^P([0-9]+)\($")
+special = ["NOT(", "POS(", "NEC(", "OR(", "IMP(", "DUP("]
 
-xp = re.compile("^X([0-9]+)$")
-ep = re.compile("^E([0-9]+)$")
-sp = re.compile("^S([0-9]+)$")
-pp = re.compile("^P([0-9]+)$")
-kp = re.compile("^K([0-9]+)$")
-
-
-special = ["NOT(", "POS(", "NEC(", "OR(", "IMP(", "DUPLEX("]
-
-def is_variables(tok):
-	if xp.match(tok) or ep.match(tok) or sp.match(tok) or pp.match(tok) or kp.match(tok):
-		return True
-	return False
 
 def get_b(stack):
 	for item in stack[::-1]:
@@ -25,101 +10,115 @@ def get_b(stack):
 			return item
 
 def process(tokens):
-	current_b = 0
-	current_c = 0
-	variables = Set()
+	
+	i = 0
+	b = 0
+	card_num = 0
+	time_num = 0
+	b_n = []
+	while i < len(tokens):
+		if tokens[i] in ["DRS(", "SDRS("]:
+			b_n.append(str(b))
+			b += 1
+		else:
+			b_n.append(None)
+			if tokens[i] == "CARD_NUMBER":
+				tokens[i] = tokens[i] + "-" + str(card_num)
+				card_num += 1
+			if tokens[i] == "TIME_NUMBER":
+				tokens[i] = tokens[i] + "-" + str(time_num)
+				time_num += 1
+		i += 1
+
+	i = 0
+	k2b = {}
+	while i < len(tokens):
+		if re.match("^K[0-9]\($", tokens[i]):
+			assert tokens[i+1] in ["DRS(", "SDRS("]
+			k2b[tokens[i][:-1]] = "b"+b_n[i+1]
+		i += 1
+
+	print tokens
+	print b_n
+	print k2b
 	i = 0
 	stack = []
 	tuples = []
-	time_num = 0
-	card_num = 0
 	while i < len(tokens):
 		tok = tokens[i]
-		if tok == "<EOS>":
+		if tok in ["DRS(", "SDRS("]:
+			idx = b_n[i]
+			assert idx != None
+			stack.append("b"+idx)
 			i += 1
-			pass
-		elif tok == "DRS(" or tok == "SDRS(":
-			stack.append("b"+str(current_b))
-			current_b += 1
-			i+= 1
 		elif tok in special:
-			stack.append("c-"+str(current_c)+"-"+str(special.index(tok)))
-			current_c += 1
-			i+=1
-		elif kp_r.match(tok) or pp_r.match(tok):
-			stack.append(tok[:-1])
-			if tok[:-1] not in variables:
-				tuples.append([get_b(stack), "REF", tok[:-1].lower()])
-				variables.add(tok[:-1])
+			stack.append(tok)
+			if tok in special[:3]:
+				assert tokens[i+1] in ["DRS(", "SDRS("]
+				tuples.append([get_b(stack), tok[:-1], "b"+b_n[i+1]])
+			else:
+				j = i + 1
+				tmp = []
+				while j < len(tokens):
+					if tokens[j][-1] == "(":
+						tmp.append(tokens[j])
+					elif tokens[j] == ")":
+						tmp.pop()
+					if len(tmp) == 0:
+						break
+					j += 1
+				assert tokens[i+1] in ["DRS(", "SDRS("]
+				assert b_n[i+1] != None
+				assert tokens[j+1] in ["DRS(", "SDRS("]
+				assert b_n[j+1] != None
+				tuples.append([get_b(stack), tok[:-1], "b"+b_n[i+1], "b"+b_n[j+1]])
 			i += 1
-		elif tok == "TIMEX(" or tok == "CARD(":
-			if tokens[i+1] not in variables:
-				tuples.append([get_b(stack), "REF", tokens[i+1].lower()])
-				variables.add(tokens[i+1])
-			tuples.append([get_b(stack), "TIMEX", "c"+str(current_c)])
-			tuples.append(["c"+str(current_c), "ARG1", tokens[i+1].lower()])
-			if tokens[i+2] != ")":
-				if tokens[i+2] == "TIME_NUMBER":
-					tuples.append(["c"+str(current_c), "ARG2", '"'+tokens[i+2]+str(time_num)+'"'])
-					time_num += 1
-				elif tokens[i+2] == "CARD_NUMBER":
-					tuples.append(["c"+str(current_c), "ARG2", '"'+tokens[i+2]+str(card_num)+'"'])
-					card_num += 1
-				else:
-					assert False
-			current_c += 1
-
-			if tokens[i+2] != ")":
-				i += 4
-			else:
-				i += 3
+		elif re.match("^K[0-9]+\($", tok):
+			stack.append(tok)
+			assert tokens[i+1]in ["DRS(", "SDRS("]
+			assert b_n[i+1] != None
+			tuples.append([get_b(stack), "DRS", "b"+b_n[i+1]])
+			i += 1
+		elif re.match("^P[0-9]+\($", tok):
+			stack.append(tok)
+			assert tokens[i+1] in ["DRS(", "SDRS("]
+			assert b_n[i+1] != None
+			tuples.append([get_b(stack), "Prop", tok, "b"+b_n[i+1]])
+			i += 1
 		elif tok == ")":
-			tmp = []
-			while stack[-1][0] == "-":
-				tmp.append(stack.pop())
-			tmp = tmp[::-1]
-
-			if stack[-1][0] == "c":
-				assert len(tmp) <= 2
-				crel = special[int(stack[-1].split("-")[2])]
-				cnum = "".join(stack[-1].split("-")[:2])
-				tuples.append([get_b(stack), crel[:-1], cnum.lower()])
-				tuples.append([cnum, "ARG1", tmp[0][1:].lower()])
-				if len(tmp) == 2:
-					tuples.append([cnum, "ARG2", tmp[1][1:].lower()])
-				stack.pop()
-			elif stack[-1][0] in ["K","P"]:
-				assert len(tmp) == 1
-				if stack[-1][0] == "K":
-					tuples.append([get_b(stack), "CONSTITUENT", "c"+str(current_c)])
-				else:
-					tuples.append([get_b(stack), "PROP", "c"+str(current_c)])
-				
-				tuples.append(["c"+str(current_c), "ARG1", stack[-1].lower()])
-				tuples.append(["c"+str(current_c), "ARG2", tmp[0][1:].lower()])
-				current_c += 1
-				stack.pop()
-			else:
-				stack[-1] = "-"+stack[-1]
+			stack.pop()
 			i += 1
 		else:
-			if tok == "Eq(":
+			if tok == "Equ(":
 				tok = "EQU("
-			if tokens[i+1] not in variables:
-				tuples.append([get_b(stack), "REF", tokens[i+1].lower()])
-				variables.add(tokens[i+1])
-			tuples.append([get_b(stack), tok[:-1], "c"+str(current_c)])
-			tuples.append(["c"+str(current_c), "ARG1", tokens[i+1].lower()])
-			if tokens[i+2] != ")":
-				if tokens[i+2] not in variables:
-					tuples.append([get_b(stack), "REF", tokens[i+2].lower()])
-					variables.add(tokens[i+2])
-				tuples.append(["c"+str(current_c), "ARG2", tokens[i+2].lower()])
-			current_c += 1
-			if tokens[i+2] != ")":
-				i += 4
+			tuples.append([get_b(stack), tok[:-1]])
+			#v1
+			i += 1
+			assert tokens[i] != ")"
+			if re.match("^K[0-9]+$", tokens[i]):
+				tuples[-1].append(k2b[tokens[i]].lower())
 			else:
-				i += 3
+				tuples[-1].append(tokens[i].lower())
+
+			#v2
+			i += 1
+			if tokens[i] == ")":
+				i += 1
+			else:
+				if tokens[i].startswith("CARD_NUMBER") or tokens[i].startswith("TIME_NUMBER"):
+					tuples[-1].append(tokens[i])
+				else:
+					if re.match("^K[0-9]+$", tokens[i]):
+						tuples[-1].append(k2b[tokens[i]].lower())
+					else:
+						tuples[-1].append(tokens[i].lower())
+
+					#v at most 2
+				i += 1
+				assert tokens[i] == ")"
+
+				i += 1
+
 	assert len(tuples)!=0
 	for item in tuples:
 		print " ".join(item)
