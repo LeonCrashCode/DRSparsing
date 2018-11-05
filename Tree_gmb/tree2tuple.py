@@ -9,7 +9,7 @@ def get_b(stack):
 		if item[0] == "b":
 			return item
 
-def process(tokens):
+def process(tokens, partially):
 	
 	i = 0
 	b = 0
@@ -38,9 +38,6 @@ def process(tokens):
 			k2b[tokens[i][:-1]] = "b"+b_n[i+1]
 		i += 1
 
-	print tokens
-	print b_n
-	print k2b
 	i = 0
 	stack = []
 	tuples = []
@@ -106,7 +103,7 @@ def process(tokens):
 				i += 1
 			else:
 				if tokens[i].startswith("CARD_NUMBER") or tokens[i].startswith("TIME_NUMBER"):
-					tuples[-1].append(tokens[i])
+					tuples[-1].append('"'+tokens[i]+'"')
 				else:
 					if re.match("^K[0-9]+$", tokens[i]):
 						tuples[-1].append(k2b[tokens[i]].lower())
@@ -118,12 +115,29 @@ def process(tokens):
 				assert tokens[i] == ")"
 
 				i += 1
-
 	assert len(tuples)!=0
-	for item in tuples:
-		print " ".join(item)
-	print
+
+	if partially:
+		c = 0
+		for item in tuples:
+			if item[1] in ["NOT", "POS", "NEC", "OR", "IMP", "DUP", "DRS"]:
+				print " ".join(item)
+			else:
+				print item[0], item[1], "c"+str(c)
+				print "c"+str(c), "ARG1", item[2]
+				if len(item) == 4:
+					print "c"+str(c), "ARG2", item[3]
+				else:
+					assert len(item) == 3
+				c += 1
+	else:
+		for item in tuples:
+			print " ".join(item)
+		print
 for line in open(sys.argv[1]):
 	line = line.strip()
 	assert line[:5] == "SDRS(" or line[:4] == "DRS("
-	process(line.split())
+	if len(sys.argv) >= 3 and sys.argv[2] == "partially":
+		process(line.split(), True)
+	else:
+		process(line.split(), False)
