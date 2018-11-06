@@ -80,7 +80,7 @@ def process(tokens, partially):
 			stack.append(tok)
 			assert tokens[i+1] in ["DRS(", "SDRS("]
 			assert b_n[i+1] != None
-			tuples.append([get_b(stack), "Prop", tok, "b"+b_n[i+1]])
+			tuples.append([get_b(stack), "Prop", tok[:-1].lower(), "b"+b_n[i+1]])
 			i += 1
 		elif tok == ")":
 			stack.pop()
@@ -130,6 +130,7 @@ def process(tokens, partially):
 				else:
 					assert len(item) == 3
 				c += 1
+		print 
 	else:
 		for item in tuples:
 			print " ".join(item)
