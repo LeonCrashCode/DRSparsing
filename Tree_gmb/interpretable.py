@@ -43,6 +43,8 @@ def recursive(tree):
 		if n[-1] == "(":
 			stack.append(n)
 		elif n == ")":
+			if len(stack) == 0:
+				return True
 			b = stack.pop()
 			if len(stack) == 0:
 				continue
@@ -64,6 +66,8 @@ def pk(tree):
 		if n[-1] == "(":
 			stack.append([n,0])
 		elif n == ")":
+			if len(stack) == 0:
+				return True
 			b = stack.pop()
 			if len(stack) == 0:
 				continue
@@ -91,6 +95,8 @@ def SDRSsegment(tree):
 		if n[-1] == "(":
 			stack.append([n,0])
 		elif n == ")":
+			if len(stack) == 0:
+				return True
 			b = stack.pop()
 			if len(stack) != 0 and stack[-1][0] == "SDRS(":
 				if re.match("^K[0-9]+\($",b[0]):
@@ -160,6 +166,8 @@ def scopedSegments(tree):
 			else:
 				stack.append([-1, []])
 		elif n == ")":
+			if len(stack) == 0:
+				return True
 			b = stack.pop()
 			if b[0] != -1 and b[0] < 1000:
 				k_scoped[b[0]] = b[1]
@@ -177,6 +185,8 @@ def scopedSegments(tree):
 			else:
 				stack.append([-1, []])
 		elif n == ")":
+			if len(stack) == 0:
+				return True
 			b = stack.pop()
 			if len(stack) > 0 and stack[-1][0] != -1:
 				stack[-1][1] = stack[-1][1] + b[1]
