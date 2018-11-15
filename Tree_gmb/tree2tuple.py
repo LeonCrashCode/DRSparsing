@@ -112,7 +112,10 @@ def process(tokens):
 				elif args.novar:
 					tuples[-1].append("x1")
 				else:
-					tuples[-1].append(k2b[tokens[i]].lower())
+					if tokens[i] in k2b:
+						tuples[-1].append(k2b[tokens[i]].lower())
+					else:
+						tuples[-1].append("b"+str(b))
 			else:
 				if args.norel:
 					pass
@@ -136,7 +139,10 @@ def process(tokens):
 						if args.norel or args.novar:
 							pass
 						else:
-							tuples[-1].append(k2b[tokens[i]].lower())
+							if tokens[i] in k2b:
+								tuples[-1].append(k2b[tokens[i]].lower())
+							else:
+								tuples[-1].append("b"+str(b))
 					else:
 						if args.norel or args.novar:
 							pass

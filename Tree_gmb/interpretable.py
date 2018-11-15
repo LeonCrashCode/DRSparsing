@@ -59,6 +59,29 @@ def recursive(tree):
 				if stack[-1] != "DRS(" and stack[-1] != "SDRS(":
 					return False
 	return True
+
+def sixscope(tree):
+	stack = []
+	for n in tree:
+		if n[-1] == "(":
+			stack.append([n,0])
+		elif n == ")":
+			if len(stack) == 0:
+				return True
+			b,i = stack.pop()
+			if len(stack) == 0:
+				continue
+			if b == "DRS(" or b == "SDRS(":
+				if stack[-1][0] in ["NOT(", "NEC(", "POS(", "IMP(", "OR(", "DUP("]:
+					stack[-1][1] += 1
+			if b in ["NOT(", "NEC(", "POS("]:
+				if i != 1:
+					return False
+			if b in ["IMP(", "OR(", "DUP("]:
+				if i != 2:
+					return False
+	return True	 
+
 def pk(tree):
 	# P( and K( should have only one box to represent its meaning
 	stack = []
@@ -137,7 +160,7 @@ def NoRelationLoop(tree):
 			for nn in tree:
 				if n == nn:
 					cnt += 1
-			if cnt == 40:
+			if cnt > 30:
 				return False
 	return True
 def NoSemanticLoop(tree):
@@ -201,7 +224,7 @@ def scopedSegments(tree):
 if __name__ == "__main__":
 	n = 0
 
-	fun1 = [bracket, root, recursive, pk, pk_only, SDRSsegment, NoEmpty, VariableCount]
+	fun1 = [bracket, root, recursive, pk, pk_only, SDRSsegment, NoEmpty, VariableCount, sixscope]
 	fun2 = [NoRelationLoop, NoSemanticLoop, scopedSegments]
 
 	count1 = [0 for i in range(len(fun1))]
@@ -211,7 +234,7 @@ if __name__ == "__main__":
 		if line == "":
 			continue
 		line = line.split()
-		print n
+		#print n
 		n += 1
 
 		for i, fun in enumerate(fun1):

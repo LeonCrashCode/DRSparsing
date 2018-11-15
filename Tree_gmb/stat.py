@@ -84,6 +84,17 @@ def stat_pk_bracket(line):
 			assert tok not in pk
 			pk.append(tok)
 
+max_length = -1
+def stat_struct_length(line):
+	cnt = 0
+	global max_length
+	line = line.split()
+	for tok in line:
+		if tok in  ["DRS(", "SDRS(", "NOT(", "NEC(", "POS(", "IMP(", "DUP(", "OR("]:
+			cnt += 1
+		elif re.match("^[XESTPK][0-9]+\($", tok):
+			cnt += 1
+	max_length = max(max_length, cnt*2)
 def add(key, d):
 	if key in d:
 		d[key] += 1
@@ -98,7 +109,9 @@ if __name__ == "__main__":
 		#stat(line)
 		#stat_rel(line)
 		#stat_equ(line)
-		stat_pk_bracket(line)
+		#stat_pk_bracket(line)
+		stat_struct_length(line)
+	print max_length
 	#for key in var.keys():
 	#	print key, var[key]
 	#print "drs-l", drs_l
