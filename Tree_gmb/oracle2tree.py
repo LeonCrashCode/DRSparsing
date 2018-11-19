@@ -7,7 +7,14 @@ def get_in(filename):
 	for line in open(filename):
 		line = line.strip()
 		if line == "":
-			lemmas.append(lines[1].split())
+                        new_lemma = []
+                        lemma = lines[1].split()
+                        for i in range(len(lemma)):
+                            if lemma[i] in lemma[:i]:
+                                continue
+                            new_lemma.append(lemma[i])
+                        lemmas.append(new_lemma)
+			#lemmas.append(lines[1].split())
 			lines = []
 		else:
 			lines.append(line)

@@ -163,15 +163,46 @@ def NoRelationLoop(tree):
 			if cnt > 30:
 				return False
 	return True
+def get_set(tok, set):
+	for i in range(len(set)):
+		if tok in set[i]:
+			return i
+	return None
+def issameset(tok1, tok2, set):
+	if tok1 in ["CARD_NUMBER", "TIME_NUMBER"]:
+		return False
+	if tok2 in ["CARD_NUMBER", "TIME_NUMBER"]:
+		return False
+	for s in set:
+		if (tok1 in s) and (tok2 in s):
+			return True
+	return False
 def NoSemanticLoop(tree):
 	# should not assign two same variables a relation except Equ()
+	equ = []
+	for i in range(len(tree)):
+		if is_relation(tree[i]) == False:
+			continue
+		if tree[i] == "Equ(" and i + 3 < len(tree) and is_variable(tree[i+1]) and is_variable(tree[i+2]) and tree[i+3] == ")":
+			set1_idx = get_set(tree[i+1], equ)
+			set2_idx = get_set(tree[i+2], equ)
+			if set1_idx == None and set2_idx == None:
+				equ.append([tree[i+1], tree[i+2]])
+			elif set1_idx == None:
+				equ[set2_idx].append(tree[i+1])
+			elif set2_idx == None:
+				equ[set1_idx].append(tree[i+2])
+			else:
+				equ[set1_idx] += equ[set2_idx]
+				equ.remove(equ[set2_idx])
+
 	for i in range(len(tree)):
 		if is_relation(tree[i]) == False:
 			continue
 		if tree[i] == "Equ(":
 			continue
 		if i + 3 < len(tree) and is_variable(tree[i+1]) and is_variable(tree[i+2]) and tree[i+3] == ")":
-			if tree[i+1] == tree[i+2]:
+			if (tree[i+1] == tree[i+2]) or issameset(tree[i+1], tree[i+2], equ):
 				return False
 	return True
 def scopedSegments(tree):
@@ -225,8 +256,8 @@ if __name__ == "__main__":
 	n = 0
 
 	fun1 = [bracket, root, recursive, pk, pk_only, SDRSsegment, NoEmpty, VariableCount, sixscope]
-	fun2 = [NoRelationLoop, NoSemanticLoop, scopedSegments]
-
+	#fun2 = [NoRelationLoop, NoSemanticLoop, scopedSegments]
+	fun2 = [NoRelationLoop, scopedSegments]
 	count1 = [0 for i in range(len(fun1))]
 	count2 = [0 for i in range(len(fun2))]
 	for line in open(sys.argv[1]):
@@ -242,6 +273,9 @@ if __name__ == "__main__":
 				count1[i] += 1
 		for i, fun in enumerate(fun2):
 			if fun(line) == False:
+				if fun.__name__ == "NoSemanticLoop":
+					print " ".join(line)
+					exit(1)
 				count2[i] += 1
 
 	for i, err in enumerate(count1):

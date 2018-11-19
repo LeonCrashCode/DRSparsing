@@ -33,6 +33,12 @@ def bracket2list(bracket):
 
 def tree2oracle(lemmas, tree, out_action):
 	lemmas = lemmas.split()
+        new_lemmas = []
+        for i in range(len(lemmas)):
+            if lemmas[i] in lemmas[:i]:
+                continue
+            new_lemmas.append(lemmas[i])
+        lemmas = new_lemmas
 	v = ["X","E","S","T","P","K"]
 	vl = [ [] for i in range(6)]
 
@@ -146,8 +152,8 @@ if __name__ == "__main__":
 	
 	lines = []
 	filename = ""
-	out_input = open(sys.argv[1]+".oracle.in", "w")
-	out_action = open(sys.argv[1]+".oracle.out", "w")
+	out_input = open(sys.argv[1]+".oracle.in2", "w")
+	out_action = open(sys.argv[1]+".oracle.out2", "w")
 	for line in open(sys.argv[1]):
 		line = line.strip()
 		if line == "":
