@@ -54,7 +54,7 @@ def tree2oracle(lemmas, tree, out_action):
 	root = bracket2list(tree)
 
 	def is_struct(tok):
-		if tok in ["DRS(", "SDRS(", "NOT(", "POS(", "NEC(", "IMP(", "OR(", "DUP("]:
+		if tok in ["DRS(", "DRS-N(", "DRS-S(", "SDRS(", "NOT(", "POS(", "NEC(", "IMP(", "OR(", "DUP("]:
 			return True
 		if re.match("^[PK][0-9]+\($", tok):
 			return True
@@ -67,7 +67,7 @@ def tree2oracle(lemmas, tree, out_action):
 		child = root[1:]
 		if parent[-1] == "(":
 			if is_struct(parent):
-				if parent in ["DRS(", "SDRS("]:
+				if parent in ["DRS(", "DRS-N(", "DRS-S(", "SDRS("]:
 					for c in child:
 						if not is_struct(c[0]):
 							for cc in c[1:]:
