@@ -121,7 +121,7 @@ def logic_conds(parent):
 		else:
 			assert False, "conds confused"
 
-prev_index = 0
+prev_index = 1
 def logic_drs(parent):
 	assert parent.tag == "drs"
 	indexs = []
