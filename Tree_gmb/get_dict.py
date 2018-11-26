@@ -18,8 +18,8 @@ def stat(line):
 		#if tok[-1] == "(":
 		#	tok = tok[:-1]
 
-		if tok in predefined:
-			if tok == "DRS(":
+		if (tok in predefined) or re.match("^DRS-[0-9]+\($", tok):
+			if tok == "DRS(" or re.match("^DRS-[0-9]+\($", tok):
 				drs += 1
 			pass
 		elif re.match("^\$[0-9]+\($",tok):
@@ -80,7 +80,7 @@ if __name__ == "__main__":
 	show(node_pred, "### PREDICATE")
 	#show(node_extra_constant, "### CONSTANT")
 
-	#for key in var.keys():
+	# for key in var.keys():
 	#	print "#", key, var[key]
-	print "# drs-l", drs_l  
+	# print "# drs-l", drs_l  
 	
