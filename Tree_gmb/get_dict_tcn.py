@@ -26,11 +26,7 @@ def stat(line):
 				pass
 			elif re.match("^\$[0-9]+\($",tok):
 				pass
-			elif re.match("^[XESTPK][0-9]+\($",tok):
-				if tok[0] not in var:
-					var[tok[0]] = int(tok[1:-1])
-				else:
-					var[tok[0]] = max(var[tok[0]], int(tok[1:-1]))
+			elif tok in ["@P(", "@K("]:
 				pass
 			elif tok.isupper():
 				add(tok, node_dis_rel)
@@ -85,8 +81,8 @@ if __name__ == "__main__":
 	show(node_rel, "### RELATION")
 	show(node_pred, "### PREDICATE")
 	show(node_sense, "### SENSE")
-	# show(node_constant, "### CONSTANT")
-	# for key in var.keys():
-	#	print "#", key, var[key]
-	# print "# drs-l", drs_l  
+	show(node_constant, "### CONSTANT")
+	for key in var.keys():
+		print "#", key, var[key]
+	print "# drs-l", drs_l  
 	
