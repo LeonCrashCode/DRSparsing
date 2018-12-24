@@ -42,6 +42,21 @@ def tree2oracle(tree, out_action):
 	correct(tree)
 	out_action.write(" ".join(tree)+"\n")
 
+def filter(illform, tree):
+	#filter two long sentences, actually only one
+	"""
+	cnt = 0
+	for item in tree:
+		if item == "DRS(":
+			cnt += 1
+	if cnt >= 21:
+		return True
+	"""
+	for item in illform:
+		if item in tree:
+			return True
+	return False
+
 if __name__ == "__main__":
 	
 	illform = []
@@ -52,6 +67,12 @@ if __name__ == "__main__":
 			continue
 		illform.append(line.split()[-2])
 	"""
+	if os.path.exists("manual_correct2"):
+		for line in open("manual_correct2"):
+			line = line.strip()
+			if line == "" or line[0] == "#":
+				continue
+			illform.append(line.split()[0])
 	
 	lines = []
 	filename = ""
@@ -66,6 +87,10 @@ if __name__ == "__main__":
 			words = " ||| ".join(lines[:idx])
 
 			tree = lines[idx+1].split()
+			if filter(illform, tree):
+				lines = []
+				continue
+
 			out_input.write(words + "\n\n")
 			tree2oracle(tree, out_action)
 			out_input.flush()
