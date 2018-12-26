@@ -35,7 +35,7 @@ def stat(line):
 			else:
 				add(tok, node_pred)
 		else:
-			if re.match("^[XESTPK][0-9]+$",tok):
+			if re.match("^[XESTPKB][0-9]+$",tok):
 				if tok[0] not in var:
 					var[tok[0]] = int(tok[1:])
 				else:
@@ -81,8 +81,15 @@ if __name__ == "__main__":
 	show(node_rel, "### RELATION")
 	show(node_pred, "### PREDICATE")
 	show(node_sense, "### SENSE")
-	show(node_constant, "### CONSTANT")
-	for key in var.keys():
-		print "#", key, var[key]
-	print "# drs-l", drs_l  
-	
+	#show(node_constant, "### CONSTANT")
+	#for key in var.keys():
+	#	print "#", key, var[key]
+	#print "# drs-l", drs_l  
+# B 46
+# E 52
+# K 32
+# P 23
+# S 53
+# T 41
+# X 165
+# drs-l 60	

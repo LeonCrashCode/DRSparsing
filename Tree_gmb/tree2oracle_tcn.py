@@ -40,7 +40,43 @@ def tree2oracle(tree, out_action):
 		elif kb.match(tree[i]):
 			tree[i] = "@K("
 	correct(tree)
-	out_action.write(" ".join(tree)+"\n")
+	"""	
+	B = 1
+	for i in range(len(tree)):
+		if tree[i] in ["@P(", "POS(", "NEC(", "NOT(", "IMP(", "OR(", "DUP("]:
+			if tree[i+1] == "B"+str(B):
+				tree[i+1] = "@B"
+				B += 1
+	X = E = S = T = 1
+	for i in range(len(tree)):
+		if re.match("^X[0-9]+$", tree[i]):
+			assert int(tree[i][1:]) <= X
+			if tree[i] == "X"+str(X):
+				tree[i] = "@X"
+				X += 1
+		elif re.match("^E[0-9]+$", tree[i]):
+			assert int(tree[i][1:]) <= E
+			if tree[i] == "E"+str(E):
+				tree[i] = "@E"
+				E += 1
+		elif re.match("^S[0-9]+$", tree[i]):
+                        assert int(tree[i][1:]) <= S
+                        if tree[i] == "S"+str(S):
+                                tree[i] = "@S"
+                                S += 1
+		elif re.match("^T[0-9]+$", tree[i]):
+                        assert int(tree[i][1:]) <= T
+                        if tree[i] == "T"+str(T):
+                                tree[i] = "@T"
+                                T += 1
+		elif re.match("^B[0-9]+$", tree[i]):
+                        assert int(tree[i][1:]) <= B
+                        if tree[i] == "B"+str(B):
+                                tree[i] = "@B"
+                                B += 1
+	"""
+	out_action.write(" ".join(tree)+"\n")	
+		
 
 def filter(illform, tree):
 	#filter two long sentences, actually only one
