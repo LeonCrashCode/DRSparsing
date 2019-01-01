@@ -83,6 +83,7 @@ for i in range(n):
 	while True:
 		visx = [False for x in range(n)]
 		visy = [False for x in range(m)]
+		print link
 		if can(i):
 			break
 
