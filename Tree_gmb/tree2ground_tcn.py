@@ -131,24 +131,28 @@ def tree2oracle(tree, out_action):
 		tok = tree[i]
 		if pb.match(tok):
 			assert int(tok[1:-1]) == p_n + 1
-			tree[i] = "@P("
+			#tree[i] = "@P("
 			p_n += 1
 		if kb.match(tok):
 			assert int(tok[1:-1]) == k_n + 1
-			tree[i] = "@K("
+			#tree[i] = "@K("
 			k_n += 1
 	
 	# keep index and remove [***]
 	n_tree = []
 	for i in range(len(tree)):
 		if tree[i][0] == "[" and tree[i][-1] == "]":
-			pass
+			n_tree.append(tree[i][1:-1])
 		elif re.match("^\$[0-9]+\[.+\]\($", tree[i]):
 			idx = tree[i].index("[")
-			n_tree.append(tree[i][:idx]+"(")
+			n_tree.append(tree[i][idx+1:-2]+"(")
 		elif re.match("^\$[0-9]+\[.+\]$", tree[i]): 	
 			idx = tree[i].index("[")
-			n_tree.append(tree[i][:idx])
+			n_tree.append(tree[i][idx+1:-1])
+		elif re.match("^\$[0-9]+$", tree[i]):
+			pass
+		elif re.match("^T[yx][mx][dx]\($", tree[i]):
+			n_tree.append("Timex(")
 		else:
 			n_tree.append(tree[i])
 	out_action.write(" ".join(n_tree)+"\n")
@@ -224,8 +228,8 @@ if __name__ == "__main__":
 	
 	lines = []
 	filename = ""
-	out_input = open(sys.argv[1]+".oracle.in", "w")
-	out_action = open(sys.argv[1]+".oracle.out", "w")
+	#out_input = open(sys.argv[1]+".oracle.in", "w")
+	out_action = open(sys.argv[1]+".ground", "w")
 	for line in open(sys.argv[1]):
 		line = line.strip()
 		if line == "":
@@ -239,9 +243,9 @@ if __name__ == "__main__":
 				lines = []
 				continue
 
-			out_input.write(words + "\n\n")
+			#out_input.write(words + "\n\n")
 			tree2oracle(tree, out_action)
-			out_input.flush()
+			#out_input.flush()
 			out_action.flush()
 			lines = []
 		else:
@@ -249,7 +253,7 @@ if __name__ == "__main__":
 				filename = line.split()[-1]
 				continue
 			lines.append(line)
-	out_input.close()
+	#out_input.close()
 	out_action.close()
 
 			

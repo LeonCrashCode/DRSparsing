@@ -7,6 +7,8 @@ d_p = re.compile("^DRS-[0-9]+\($")
 pb = re.compile("^P[0-9]+\($")
 kb = re.compile("^K[0-9]+\($")
 
+
+card_dict = {}
 def correct(tree):
 	# Here we correct some weired things
 
@@ -131,24 +133,31 @@ def tree2oracle(tree, out_action):
 		tok = tree[i]
 		if pb.match(tok):
 			assert int(tok[1:-1]) == p_n + 1
-			tree[i] = "@P("
+			#tree[i] = "@P("
 			p_n += 1
 		if kb.match(tok):
 			assert int(tok[1:-1]) == k_n + 1
-			tree[i] = "@K("
+			#tree[i] = "@K("
 			k_n += 1
 	
 	# keep index and remove [***]
 	n_tree = []
 	for i in range(len(tree)):
+		if tree[i] == "Card(":
+			idx = tree[i:].index(")")
+			
 		if tree[i][0] == "[" and tree[i][-1] == "]":
-			pass
+			n_tree.append(tree[i][1:-1])
 		elif re.match("^\$[0-9]+\[.+\]\($", tree[i]):
 			idx = tree[i].index("[")
-			n_tree.append(tree[i][:idx]+"(")
+			n_tree.append(tree[i][idx+1:-2]+"(")
 		elif re.match("^\$[0-9]+\[.+\]$", tree[i]): 	
 			idx = tree[i].index("[")
-			n_tree.append(tree[i][:idx])
+			n_tree.append(tree[i][idx+1:-1])
+		elif re.match("^\$[0-9]+$", tree[i]):
+			pass
+		elif re.match("^T[yx][mx][dx]\($", tree[i]):
+			n_tree.append("Timex(")
 		else:
 			n_tree.append(tree[i])
 	out_action.write(" ".join(n_tree)+"\n")
@@ -190,66 +199,26 @@ def tree2oracle(tree, out_action):
 	#out_action.write(" ".join(tree)+"\n")	
 		
 
-def filter(illform, tree):
-	#filter two long sentences, actually only one
-	"""
-	cnt = 0
-	for item in tree:
-		if item == "DRS(":
-			cnt += 1
-	if cnt >= 21:
-		return True
-	"""
-	for item in illform:
-		if item in tree:
-			return True
-	return False
-
 if __name__ == "__main__":
 	
-	illform = []
-	"""
-	for line in open("illform"):
-		line = line.strip()
-		if line == "":
-			continue
-		illform.append(line.split()[-2])
-	"""
-	if os.path.exists("manual_correct2"):
-		for line in open("manual_correct2"):
-			line = line.strip()
-			if line == "" or line[0] == "#":
-				continue
-			illform.append(line.split()[0])
-	
+	global words
 	lines = []
 	filename = ""
-	out_input = open(sys.argv[1]+".oracle.in", "w")
-	out_action = open(sys.argv[1]+".oracle.out", "w")
 	for line in open(sys.argv[1]):
 		line = line.strip()
 		if line == "":
 
 			idx = lines.index("TREE")
-			
 			words = " ||| ".join(lines[:idx])
-
+			for i in range(len(words)):
+				words[i] = words[i].strip().split()
 			tree = lines[idx+1].split()
-			if filter(illform, tree):
-				lines = []
-				continue
-
-			out_input.write(words + "\n\n")
-			tree2oracle(tree, out_action)
-			out_input.flush()
-			out_action.flush()
+			get_dict(tree)
 			lines = []
 		else:
 			if line[0] == "#":
 				filename = line.split()[-1]
 				continue
 			lines.append(line)
-	out_input.close()
-	out_action.close()
 
 			
