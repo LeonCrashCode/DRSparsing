@@ -2,6 +2,16 @@ import os
 import sys
 import re
 
+import argparse
+
+
+parser = argparse.ArgumentParser()
+parser.add_argument("--input", required=True)
+parser.add_argument("--novar", action='store_true')
+parser.add_argument("--norel", action='store_true')
+parser.add_argument("--partial", action='store_true')
+args = parser.parse_args()
+
 v_p = re.compile("^[XESTPKB][0-9]+$")
 d_p = re.compile("^DRS-[0-9]+\($")
 pb = re.compile("^P[0-9]+\($")
