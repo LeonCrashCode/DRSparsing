@@ -204,9 +204,9 @@ def tree2ground(tree):
 					cons = words[stack[-1]][int(t[1:j])] + " ||| " + tree[i+idx-1][0]
 				
 					if cons not in name_dict:
-						name_dict[cons] = exp
-					else:
-						assert name_dict[cons] == exp
+						name_dict[cons] = [exp]
+					elif exp not in name_dict[cons]:
+						name_dict[cons].append(exp)
 			#CONTINUATION( K1 K2 )
 			elif idx == 3 and all([v_p.match(x) for x in tree[i+1:i+idx]]):
 				assert t.isupper()
@@ -271,6 +271,6 @@ if __name__ == "__main__":
 	keys = name_dict.keys()
 	keys.sort()
 	for key in keys:
-		print key, name_dict[key]
+		print key, name_dict[key], len(name_dict[key])
 
 			

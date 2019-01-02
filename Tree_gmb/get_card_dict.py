@@ -200,9 +200,9 @@ def get_card_dict(tree):
 			cons = "~".join(cons)
 
 			if cons not in card_dict:
-				card_dict[cons] = exp
-			else:
-				assert card_dict[cons] == exp
+				card_dict[cons] = [exp]
+			elif exp not in card_dict[cons]:
+				card_dict[cons].append(exp)
 			i = i + idx + 1
 		elif re.match("^T[yx][mx][dx]\($", t):
 			assert stack[-1] != -1
@@ -268,6 +268,6 @@ if __name__ == "__main__":
 	keys = card_dict.keys()
 	keys.sort()
 	for key in keys:
-		print key, card_dict[key]
+		print key, card_dict[key], len(card_dict[key])
 
 			

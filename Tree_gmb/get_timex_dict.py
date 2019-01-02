@@ -203,9 +203,9 @@ def tree2ground(tree):
 			cons = "~".join(cons) + " ||| " + t[:-1]
 
 			if cons not in timex_dict:
-				timex_dict[cons] = exp
-			else:
-				assert timex_dict[cons] == exp
+				timex_dict[cons] = [exp]
+			elif exp  not in timex_dict[cons]:
+				timex_dict[cons].append(exp)
 			i = i + idx + 1
 		elif t[-1] == "(":
 			idx = tree[i:].index(")")
@@ -265,6 +265,6 @@ if __name__ == "__main__":
 	keys = timex_dict.keys()
 	keys.sort()
 	for key in keys:
-		print key, timex_dict[key]
+		print key, timex_dict[key], len(timex_dict[key])
 
 			

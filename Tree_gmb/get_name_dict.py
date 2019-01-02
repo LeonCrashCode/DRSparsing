@@ -193,9 +193,9 @@ def tree2ground(tree):
 			cons = "~".join(cons)
 			
 			if cons not in name_dict:
-				name_dict[cons] = exp
-			else:
-				assert name_dict[cons] == exp
+				name_dict[cons] = [exp]
+			elif exp not in name_dict[cons]:
+				name_dict[cons].append(exp)
 			i = i + idx + 1
 		elif t == "Card(":
 			assert stack[-1] != -1
@@ -266,5 +266,5 @@ if __name__ == "__main__":
 	keys = name_dict.keys()
 	keys.sort()
 	for key in keys:
-		print key, name_dict[key]
+		print key, name_dict[key], len(name_dict[key])
 			
