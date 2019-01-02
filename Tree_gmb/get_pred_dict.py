@@ -40,7 +40,7 @@ def bracket2list(bracket):
 	assert len(stack) == 1
 	return stack[0]
 
-def get_card_dict(tree):
+def tree2ground(tree):
 	v = ["X","E","S","T","B","P","K"]
 	vl = [ [] for i in range(7)]
 
@@ -145,7 +145,6 @@ def get_card_dict(tree):
 			#tree[i] = "@K("
 			k_n += 1
 
-
 	#print tree
 	n_tree = []
 	stack = []
@@ -178,39 +177,44 @@ def get_card_dict(tree):
 		elif t == "Named(": #Named( B0 X1 $1[John] )
 			assert stack[-1] != -1
 			idx = tree[i:].index(")")
+			
 			i = i + idx + 1
 		elif t == "Card(":
 			assert stack[-1] != -1
 			idx = tree[i:].index(")")
-			n_tree.append(t)
-			n_tree.append(tree[i+1])
-			n_tree.append(tree[i+2])
-
-			indexs = []
-			exp = ""
-			for item in tree[i+3:i+idx-1]:
-				assert re.match("^\$[0-9]+$", item)
-				indexs.append(item)
-			assert tree[i+idx-1][0] == "[" and tree[i+idx-1][-1] == "]"
-			exp = tree[i+idx-1][1:-1]
-
-			cons = []
-			for index in indexs:
-				cons.append(words[stack[-1]][int(index[1:])])
-			cons = "~".join(cons)
-
-			if cons not in card_dict:
-				card_dict[cons] = exp
-			else:
-				assert card_dict[cons] == exp
+			
 			i = i + idx + 1
 		elif re.match("^T[yx][mx][dx]\($", t):
 			assert stack[-1] != -1
 			idx = tree[i:].index(")")
+			
 			i = i + idx + 1
 		elif t[-1] == "(":
-			pass
 			idx = tree[i:].index(")")
+			#Rel( B0 X1 X2 )
+			if idx == 4 and all([v_p.match(x) for x in tree[i+1:i+idx]]):
+				assert stack[-1] != -1
+				pass
+			#Rel( B0 X1 n.00 )
+			elif idx == 4 and all([v_p.match(x) for x in tree[i+1:i+idx-1]]) and re.match("^[anvr]\.[0-9][0-9]$", tree[i+idx-1]):
+				assert stack[-1] != -1
+				if re.match("^\$[0-9]+\[.+\]\($", t):
+					j = t.index("[")
+					exp = t[j+1:-2]
+					cons = words[stack[-1]][int(t[1:j])] + " ||| " + tree[i+idx-1][0]
+				
+					if cons not in name_dict:
+						name_dict[cons] = exp
+					else:
+						assert name_dict[cons] == exp
+			#CONTINUATION( K1 K2 )
+			elif idx == 3 and all([v_p.match(x) for x in tree[i+1:i+idx]]):
+				assert t.isupper()
+				#n_tree += tree[i:i+idx]
+			else:
+				assert False, "unrecognized format"
+
+
 			i = i + idx + 1
 		else:
 			assert False, "unrecognized format"
@@ -242,8 +246,8 @@ if __name__ == "__main__":
 			illform.append(line.split()[0])
 
 	global words
-	global card_dict
-	card_dict = {}
+	global name_dict
+	name_dict = {}
 	lines = []
 	filename = ""
 	for line in open(args.input):
@@ -257,17 +261,16 @@ if __name__ == "__main__":
 			if filter(illform, tree):
 				lines = []
 				continue
-			get_card_dict(tree)
+			tree2ground(tree)
 			lines = []
 		else:
 			if line[0] == "#":
 				filename = line.split()[-1]
 				continue
 			lines.append(line)
-
-	keys = card_dict.keys()
+	keys = name_dict.keys()
 	keys.sort()
 	for key in keys:
-		print key, card_dict[key]
+		print key, name_dict[key]
 
 			

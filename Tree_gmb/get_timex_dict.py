@@ -40,7 +40,7 @@ def bracket2list(bracket):
 	assert len(stack) == 1
 	return stack[0]
 
-def get_card_dict(tree):
+def tree2ground(tree):
 	v = ["X","E","S","T","B","P","K"]
 	vl = [ [] for i in range(7)]
 
@@ -145,7 +145,6 @@ def get_card_dict(tree):
 			#tree[i] = "@K("
 			k_n += 1
 
-
 	#print tree
 	n_tree = []
 	stack = []
@@ -182,6 +181,10 @@ def get_card_dict(tree):
 		elif t == "Card(":
 			assert stack[-1] != -1
 			idx = tree[i:].index(")")
+			i = i + idx + 1
+		elif re.match("^T[yx][mx][dx]\($", t):
+			assert stack[-1] != -1
+			idx = tree[i:].index(")")
 			n_tree.append(t)
 			n_tree.append(tree[i+1])
 			n_tree.append(tree[i+2])
@@ -197,19 +200,14 @@ def get_card_dict(tree):
 			cons = []
 			for index in indexs:
 				cons.append(words[stack[-1]][int(index[1:])])
-			cons = "~".join(cons)
+			cons = "~".join(cons) + " ||| " + t[:-1]
 
-			if cons not in card_dict:
-				card_dict[cons] = exp
+			if cons not in timex_dict:
+				timex_dict[cons] = exp
 			else:
-				assert card_dict[cons] == exp
-			i = i + idx + 1
-		elif re.match("^T[yx][mx][dx]\($", t):
-			assert stack[-1] != -1
-			idx = tree[i:].index(")")
+				assert timex_dict[cons] == exp
 			i = i + idx + 1
 		elif t[-1] == "(":
-			pass
 			idx = tree[i:].index(")")
 			i = i + idx + 1
 		else:
@@ -242,8 +240,8 @@ if __name__ == "__main__":
 			illform.append(line.split()[0])
 
 	global words
-	global card_dict
-	card_dict = {}
+	global timex_dict
+	timex_dict = {}
 	lines = []
 	filename = ""
 	for line in open(args.input):
@@ -257,17 +255,16 @@ if __name__ == "__main__":
 			if filter(illform, tree):
 				lines = []
 				continue
-			get_card_dict(tree)
+			tree2ground(tree)
 			lines = []
 		else:
 			if line[0] == "#":
 				filename = line.split()[-1]
 				continue
 			lines.append(line)
-
-	keys = card_dict.keys()
+	keys = timex_dict.keys()
 	keys.sort()
 	for key in keys:
-		print key, card_dict[key]
+		print key, timex_dict[key]
 
 			
