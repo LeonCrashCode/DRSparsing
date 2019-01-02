@@ -149,7 +149,7 @@ def tree2ground(tree):
 			#tree[i] = "@K("
 			k_n += 1
 
-	print tree
+	#print tree
 	n_tree = []
 	stack = []
 	i = 0
