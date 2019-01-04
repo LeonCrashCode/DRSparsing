@@ -83,22 +83,20 @@ def getCard(parent):
 	for cc in child:
 		pos1 = int(cc.text[1:-3])
 		pos2 = int(cc.text[-3:])
-		assert pos1-1 == cur_index
 		l.append(pos2-1)
 	assert len(l) > 0
 	return  " ".join(["$"+str(index) for index in l])
 
 def getTime(parent):
-        child = parent[0]
+	child = parent[0]
 
 	l = []
 	pos1 = 999
-        for cc in child:
-                pos1 = int(cc.text[1:-3]) - 1
-                pos2 = int(cc.text[-3:])
-                assert pos1 == cur_index
-                l.append(pos2-1)
-        assert len(l) > 0
+	for cc in child:
+		pos1 = int(cc.text[1:-3]) - 1
+		pos2 = int(cc.text[-3:])
+		l.append(pos2-1)
+	assert len(l) > 0
 	
 	
 	date = parent[1].text
@@ -147,24 +145,24 @@ def getTime(parent):
 		timex.append([])
 	if Month_ex == 1:
 		for pos2 in l:
-                        if isMonth(words[pos1][pos2]):
-                                timex.append([pos2, Year, pos2])
-                                break
-                assert len(timex) == 1
+			if isMonth(words[pos1][pos2]):
+				timex.append([pos2, Year, pos2])
+				break
+		assert len(timex) == 1
 	else:
-                timex.append([])
+		timex.append([])
 
 	if day_ex == 1:
-                for pos2 in l:
-                        if isMonth(words[pos1][pos2]):
-                                timex.append([pos2, Year, pos2])
-                                break
-                assert len(timex) == 2
-        else:
-                timex.append([])
+		for pos2 in l:
+			if isMonth(words[pos1][pos2]):
+				timex.append([pos2, Year, pos2])
+				break
+		assert len(timex) == 2
+	else:
+		timex.append([])
 
 		
-        return  " ".join(["$"+str(index) for index in l])
+	return  " ".join(["$"+str(index) for index in l])
 	"""
 def getName(parent):
 	child = parent[0]
@@ -172,24 +170,22 @@ def getName(parent):
 	for cc in child:
 		pos1 = int(cc.text[1:-3])
 		pos2 = int(cc.text[-3:])
-		assert pos1-1 == cur_index
-		l.append((lemmas[pos1-1][pos2-1],pos2-1))
+		l.append((lemmas[pos2-1],pos2-1))
 	if len(l) == 1:
 		assert parent.attrib["symbol"] == l[0][0]
 		return l[0][1]
 	elif len(l) == 0:
-		assert parent.attrib["symbol"] in lemmas[cur_index]
-		d = multiple_lemmas[cur_index]
-		come = d[parent.attrib["symbol"]]
+		assert parent.attrib["symbol"] in lemmas
+		come = multiple_lemmas[parent.attrib["symbol"]]
 		index = -1
-		for i, v in enumerate(lemmas[cur_index]):
+		for i, v in enumerate(lemmas):
 			if parent.attrib["symbol"] == v:
 				index = i
 				if come == 0:
 					break
 				come -= 1
 		assert index != -1
-		d[parent.attrib["symbol"]] += 1
+		multiple_lemmas[parent.attrib["symbol"]] += 1
 		return index
 	else:
 		assert False, "more than two indexs" 
@@ -203,8 +199,7 @@ def getPred(parent):
 	for cc in child:
 		pos1 = int(cc.text[1:-3])
 		pos2 = int(cc.text[-3:])
-		assert pos1-1 == cur_index
-		l.append((lemmas[pos1-1][pos2-1],pos2-1))
+		l.append((lemmas[pos2-1],pos2-1))
 
 	if len(l) == 1:
 		if parent.attrib["symbol"] == l[0][0]:
@@ -212,19 +207,17 @@ def getPred(parent):
 		else:
 			return -1
 	elif len(l) == 0:
-		if parent.attrib["symbol"] not in lemmas[cur_index]:
+		if parent.attrib["symbol"] not in lemmas:
 			return -1
-		assert parent.attrib["symbol"] in lemmas[cur_index]
-		d = multiple_lemmas[cur_index]
-		come = d[parent.attrib["symbol"]]
+		come = multiple_lemmas[parent.attrib["symbol"]]
 		index = -1
-		for i, v in enumerate(lemmas[cur_index]):
+		for i, v in enumerate(lemmas):
 			if parent.attrib["symbol"] == v:
 				index = i
 				if come == 0:
 					break
 				come -= 1
-		d[parent.attrib["symbol"]] += 1
+		multiple_lemmas[parent.attrib["symbol"]] += 1
 		return index
 	else:
 		assert False, "more than two indexs" 
@@ -235,8 +228,7 @@ def getRel(parent):
 	for cc in child:
 		pos1 = int(cc.text[1:-3])
 		pos2 = int(cc.text[-3:])
-		assert pos1-1 == cur_index
-		l.append((lemmas[pos1-1][pos2-1], pos2-1))
+		l.append((lemmas[pos2-1], pos2-1))
 	if len(l) == 1:
 		if parent.attrib["symbol"] == l[0][0]:
 			return l[0][1]
@@ -328,8 +320,8 @@ def logic_conds(parent):
 			assert False, "conds confused"
 
 box_stack = []
-prev_index = 1
-cur_index = -1
+#prev_index = 1
+#cur_index = 0
 def logic_drs(parent):
 	assert parent.tag == "drs"
 	indexs = []
@@ -347,8 +339,9 @@ def logic_drs(parent):
 			print indexs
 		assert indexs[i][0:-3] == indexs[i+1][0:-3]
 
+	"""
 	global prev_index
-	global cur_index
+	
 	if len(indexs) == 0:
 		logic.append("DRS-"+str(prev_index-1)+"(")
 		cur_index = prev_index - 1
@@ -363,7 +356,8 @@ def logic_drs(parent):
 			assert False, "indexs are not continued"
 		prev_index = int(indexs[0][1:-3])
 		#logic.append("DRS-"+indexs[0][0:-3]+"(")
-
+	"""
+	logic.append("DRS-0(")
 	box_stack.append(parent.attrib["label"])
 	for child in parent:
 		if child.tag == "domain":
@@ -384,20 +378,21 @@ def out_sents(parent):
 	sents = []
 	tokens = []
 	lemmas = []
-	prev_id = 1
 	for child in parent:
 		if child.tag == "taggedtokens":
-			tmp = {}
-			for cc in child[0]:
-				if cc.attrib["type"] == "tok":
-					tmp["tok"] = cc.text
-				elif cc.attrib["type"] == "lemma":
-					tmp["lemma"] = cc.text
-			tokens.append(tmp["tok"])
-			lemmas.append(tmp["lemma"])
+			for c in child:
+				tmp = {}
+				for cc in c:
+					if cc.attrib["type"] == "tok":
+						tmp["tok"] = cc.text
+					elif cc.attrib["type"] == "lemma":
+						tmp["lemma"] = cc.text
+				tokens.append(tmp["tok"])
+				lemmas.append(tmp["lemma"])
 	if len(tokens) != 0 and len(lemmas) != 0:
 		#sents.append((tokens, lemmas))
 		sents.append(tokens)
+		sents.append(lemmas)
 	return sents
 
 def normalized_p(tree):
@@ -456,14 +451,20 @@ def xmlReader(filename):
 	tree = tree.getroot()
 	global words
 	global logic
+
+	global lemmas
+	global multiple_lemmas
 	for root in tree:
 		assert (root.tag == "sdrs" or root.tag == "drs")
 
-		words = []
-		sents = out_sents(root)
-		for sent in sents:
-			print " ".join(sent[0]).encode("UTF-8")
-			words.append(sent[0])
+		words, lemmas= out_sents(root)
+		print " ".join(words).encode("UTF-8")
+		multiple_lemmas = {}
+		for lem in lemmas:
+			if lem not in multiple_lemmas:
+				multiple_lemmas[lem] = 1
+			else:
+				multiple_lemmas[lem] += 1
 
 		logic = []
 		if root.tag == "sdrs":
