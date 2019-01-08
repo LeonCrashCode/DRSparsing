@@ -2,7 +2,7 @@ import os
 import sys
 import xml.etree.ElementTree as ET
 import re
-
+import types
 
 def logic_relations(parent):
 	assert parent.tag == "relations", "function relations errors"
@@ -188,10 +188,9 @@ def getName(parent):
 		multiple_lemmas[parent.attrib["symbol"]] += 1
 		return index
 	else:
+		return [x[1] for x in l]
 		assert False, "more than two indexs" 
 		print "out of", sys.argv[1]
-
-	return  " ".join(l)
 
 def getPred(parent):
 	child = parent[0]
@@ -254,8 +253,12 @@ def logic_cond(parent):
 	if child.tag == "named":
 		index = getName(child)
 		assert index != -1
-		tag = "Named_"+child.attrib["class"].upper()+"_"+child.attrib["type"].upper()+"(" 
-		logic.append(tag+" "+p+" "+child.attrib["arg"].upper()+" "+"$"+str(index)+"["+child.attrib["symbol"]+"]"+" )")
+		tag = "Named_"+child.attrib["class"].upper()+"_"+child.attrib["type"].upper()+"("
+		if type(index) == types.ListType:
+			index = ["$"+str(idx) for idx in index]
+			logic.append(tag+" "+p+" "+child.attrib["arg"].upper()+" "+" ".join(index)+" ["+child.attrib["symbol"]+"]"+" )")
+		else:
+			logic.append(tag+" "+p+" "+child.attrib["arg"].upper()+" "+"$"+str(index)+" ["+child.attrib["symbol"]+"]"+" )")
 	elif child.tag == "pred":
 		sense = child.attrib["sense"]
 		if len(sense) == 1:

@@ -265,12 +265,13 @@ if __name__ == "__main__":
 			lines = []
 		else:
 			if line[0] == "#":
+				#print line
 				filename = line.split()[-1]
 				continue
 			lines.append(line)
 	keys = name_dict.keys()
 	keys.sort()
 	for key in keys:
-		print key, name_dict[key], len(name_dict[key])
+		print key, " ".join(name_dict[key]), len(name_dict[key])
 
 			

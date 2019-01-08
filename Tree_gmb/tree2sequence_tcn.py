@@ -348,7 +348,9 @@ if __name__ == "__main__":
 			if filter(illform, tree):
 				lines = []
 				continue
-			tree2ground(tree)
+
+			print " ||| ".join([" ".join(w) for w in words])
+			#tree2ground(tree)
 			lines = []
 		else:
 			if line[0] == "#":

@@ -15,6 +15,6 @@ do
 		echo "skip $f"
 	else
 		echo "processing $f"
-		python xml2tree_enhanced.py $f/en.drs.xml > $f/document.tree.enhanced
+		python xml2tree_enhanced.py $f/en.drs.xml > $f/document.tree.enhanced2
 	fi
 done	

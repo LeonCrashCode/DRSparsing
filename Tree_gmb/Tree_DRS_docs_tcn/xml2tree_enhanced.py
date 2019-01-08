@@ -14,7 +14,6 @@ def logic_constituent(parent):
 	assert parent.tag == "constituent"
 
 	logic.append(parent.attrib["label"].upper()+"(")
-	
 	for child in parent:
 		if child.tag == "sdrs":
 			logic_sdrs(child)
@@ -78,7 +77,7 @@ def logic_prev(parent, tag, p):
 
 lemmas = []
 multiple_lemmas = []
-def getCardTime(parent):
+def getCard(parent):
 	child = parent[0]
 	l = []
 	for cc in child:
@@ -89,6 +88,84 @@ def getCardTime(parent):
 	assert len(l) > 0
 	return  " ".join(["$"+str(index) for index in l])
 
+def getTime(parent):
+        child = parent[0]
+
+	l = []
+	pos1 = 999
+        for cc in child:
+                pos1 = int(cc.text[1:-3]) - 1
+                pos2 = int(cc.text[-3:])
+                assert pos1 == cur_index
+                l.append(pos2-1)
+        assert len(l) > 0
+	
+	
+	date = parent[1].text
+	
+	assert len(date) == 9
+	Year = date[1:5]
+	Month = date[5:7]
+	Day = date[7:9]
+	
+	Year_ex = Month_ex = Day_ex = 1
+	
+	if Year == "XXXX":
+		Year_ex = 0
+	if Month == "XX":
+		Month_ex = 0
+	if Day == "XX":
+		Day_ex = 0
+	
+	ex = Year_ex + Month_ex + Day_ex 
+	assert ex !=0
+
+	s = "T"
+	if Year_ex == 1:
+		s += "y"
+	else:
+		s += "x"
+
+	if Month_ex == 1:
+		s += "m"
+	else:
+		s += "x"
+	
+	if Day_ex == 1:
+		s += "d"
+	else:
+		s += "x"
+	return s+"(", " ".join(["$"+str(index) for index in l])
+	"""
+	if Year_ex == 1:
+		for pos2 in l:
+			if isYear(words[pos1][pos2]):
+				timex.append([pos2, Year, pos2])
+				break
+		assert len(timex) == 0
+	else:
+		timex.append([])
+	if Month_ex == 1:
+		for pos2 in l:
+                        if isMonth(words[pos1][pos2]):
+                                timex.append([pos2, Year, pos2])
+                                break
+                assert len(timex) == 1
+	else:
+                timex.append([])
+
+	if day_ex == 1:
+                for pos2 in l:
+                        if isMonth(words[pos1][pos2]):
+                                timex.append([pos2, Year, pos2])
+                                break
+                assert len(timex) == 2
+        else:
+                timex.append([])
+
+		
+        return  " ".join(["$"+str(index) for index in l])
+	"""
 def getName(parent):
 	child = parent[0]
 	l = []
@@ -185,8 +262,8 @@ def logic_cond(parent):
 	if child.tag == "named":
 		index = getName(child)
 		assert index != -1
-		logic.append("Named( "+p+" "+child.attrib["arg"].upper()+" "+"$"+str(index)+" )")
-
+		tag = "Named_"+child.attrib["class"].upper()+"_"+child.attrib["type"].upper()+"(" 
+		logic.append(tag+" "+p+" "+child.attrib["arg"].upper()+" "+"$"+str(index)+" ["+child.attrib["symbol"]+"]"+" )")
 	elif child.tag == "pred":
 		sense = child.attrib["sense"]
 		if len(sense) == 1:
@@ -196,15 +273,15 @@ def logic_cond(parent):
 		if index == -1:
 			logic.append(child.attrib["symbol"]+"( "+p+child.attrib["arg"].upper()+" "+child.attrib["type"]+"."+sense+" )")
 		else:
-			logic.append("$"+str(index)+"( "+p+child.attrib["arg"].upper()+" "+child.attrib["type"]+"."+sense+" )")
+			logic.append("$"+str(index)+"["+child.attrib["symbol"]+"]"+"( "+p+child.attrib["arg"].upper()+" "+child.attrib["type"]+"."+sense+" )")
 	elif child.tag == "card":
 		#logic.append("CARD( "+child.attrib["arg"].upper() + " " + child.attrib["value"]+" )")
-		value = getCardTime(child)
-		logic.append("Card( "+p+child.attrib["arg"].upper() + " " + value+" )")
+		value = getCard(child)
+		logic.append("Card( "+p+child.attrib["arg"].upper() + " " + value+" ["+child.attrib["value"]+"]"+" )")
 	elif child.tag == "timex":
 		#logic.append("TIMEX( "+child.attrib["arg"].upper() + " " + child[1].text+" )")
-		value = getCardTime(child)
-		logic.append("Timex( "+p+child.attrib["arg"].upper() + " " + value+ " )")
+		tag, value = getTime(child)
+		logic.append(tag+" "+p+child.attrib["arg"].upper() + " " + value+" ["+child[1].text+"]"+ " )")
 
 	elif child.tag == "eq":
 		logic.append("Equ( "+p+child.attrib["arg1"].upper() + " "+child.attrib["arg2"].upper()+" )")
@@ -214,7 +291,7 @@ def logic_cond(parent):
 		if index == -1:
 			logic.append(rel[0].upper()+rel[1:]+"( "+p+child.attrib["arg1"].upper() + " "+ child.attrib["arg2"].upper()+" )")
 		else:
-			logic.append("$"+str(index)+"( "+p+child.attrib["arg1"].upper() + " "+ child.attrib["arg2"].upper()+" )")
+			logic.append("$"+str(index)+"["+rel+"]"+"( "+p+child.attrib["arg1"].upper() + " "+ child.attrib["arg2"].upper()+" )")
 	elif child.tag == "prop":
 		#print child.attrib["argument"]
 		#assert p[:-1] == "B0"
@@ -388,11 +465,14 @@ def xmlReader(filename):
 	assert root[0].tag == "taggedtokens"
 	assert (root[1].tag == "sdrs" or root[1].tag == "drs")
 
+	global words
+	words = []
 	global lemmas
 	global multiple_lemmas
 	sents = out_sents(root[0])
 	for sent in sents:
 		print " ".join(sent[0]).encode("UTF-8")
+		words.append(sent[0])
 		#print " ".join(sent[1]).encode("UTF-8")
 		lemmas.append(sent[1])
 		# construct multiple lemmas for each sent
@@ -402,7 +482,6 @@ def xmlReader(filename):
 				d[item] = 0
 		multiple_lemmas.append(d)
 
-	print "TREE"
 	global logic
 	logic = []
 	if root[1].tag == "sdrs":
@@ -410,14 +489,14 @@ def xmlReader(filename):
 	else:
 		logic_drs(root[1])
 
+	print "TREE"
 	tree = " ".join(logic).encode("UTF-8")
 	tree = tree.split()
 	normalized_p(tree)
 	normalized_index(tree)
-
-
 	print " ".join(tree)
 	print 
+
 
 if __name__ == "__main__":
 	print "###", " ".join(sys.argv)
