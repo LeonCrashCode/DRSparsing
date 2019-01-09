@@ -185,7 +185,7 @@ def getPred(parent):
 				#special case: some synnect connected with "-" not "_"
 				if len(re.split("~", tok["tok"])) == len(re.split("_", parent.attrib["symbol"])):
 					assert len(tok["tok"].split("~")) == len(tok["wid"].split())
-					return zip(tok["wid"].split("~"), parent.attrib["symbol"].split("_"))
+					return zip(tok["wid"].split(), parent.attrib["symbol"].split("_"))
 
 
 	#skip
@@ -306,6 +306,12 @@ def logic_cond(parent):
 		rel = child.attrib["symbol"]
 		index = getRel(child)
 		if index == "":
+			if rel == "ClockTime":
+				assert re.match("[0-9]{2}:[0-9]{2}",child.attrib["arg2"])
+				if int(child.attrib["arg2"][:2]) < 12:
+					rel = rel + "Am"
+				else:
+					rel = rel + "Pm"
 			logic.append(rel+"( "+p+argument(child.attrib["arg1"], child)+ " "+ argument(child.attrib["arg2"], child)+" )")
 		else:
 			logic.append(index+"["+rel+"]"+"( "+p+argument(child.attrib["arg1"], child)+ " "+ argument(child.attrib["arg2"], child)+" )")
