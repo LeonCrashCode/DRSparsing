@@ -28,9 +28,11 @@ def stat(line):
 				pass
 			elif tok in ["@P(", "@K("]:
 				pass
+			elif re.match("^\".+\"$", tok):
+				add(tok, node_constant)
 			elif tok.isupper():
 				add(tok, node_dis_rel)
-			elif tok[0].isupper():
+			elif tok[0].isupper() or tok.startswith("comp_"):
 				add(tok, node_rel)
 			else:
 				add(tok, node_pred)
@@ -81,7 +83,7 @@ if __name__ == "__main__":
 	show(node_rel, "### RELATION")
 	show(node_pred, "### PREDICATE")
 	show(node_sense, "### SENSE")
-	#show(node_constant, "### CONSTANT")
+	show(node_constant, "### CONSTANT")
 	#for key in var.keys():
 	#	print "#", key, var[key]
 	#print "# drs-l", drs_l  
