@@ -113,94 +113,146 @@ def getPred(parent):
 	if f >= t:
 		return ""
 
+	psym = parent.attrib["symbol"]
 	#print tokens
 
 	#tok["sym"] is break~up
 	#parent.attrib["symbol"] is break_up
 
+	"""
+	for token in tokens:
+		for tok in token:
+			tf = int(tok["from"])
+			tt = int(tok["to"])
+
+			psym = parent.attrib["symbol"]
+			tsym = tok["sym"]
+
+			post_psym = psym.replace("-","_").replace("~","_")
+			post_tsym = tsym.replace("-","_").replace("~","_")
+			if tf == f and tt == t and post_psym == post_tsym:
+				ttok = tok["tok"]
+				twid = tok["wid"]
+				if len(ttok.split("~")) == len(psym.split("_")):
+					return zip(twid.split(), psym.split("_"))
+				if len(ttok.split("~")) == len(psym.split("~")):
+					return zip(twid.split(), psym.split("~"))
+				if len(ttok.split("~")) == len(psym.split("-")):
+					return zip(twid.split(), psym.split("-"))
+				if len(ttok.split("~")) == len(re.split("~|-", psym)):
+					return zip(twid.split(), re.split("~|-", psym))
+				if len(ttok.split("~")) == len(re.split("~|_", psym)):
+					return zip(twid.split(), re.split("~|_", psym))
+				if len(ttok.split("~")) == len(re.split("-|_", psym)):
+					return zip(twid.split(), re.split("-|_", psym))
+				if len(ttok.split("~")) == len(re.split("-|_|~", psym)):
+					return zip(twid.split(), re.split("-|_|~", psym))
+	"""
+
+
+
 	#No ~ or - 
 	for token in tokens:
 		for tok in token:
-			if "~" in tok["tok"] or "-" in tok["tok"]:
+			tf = int(tok["from"])
+			tt = int(tok["to"])
+			ttok = tok["tok"]
+
+			tsym = tok["sym"]
+			twid = tok["wid"]
+			if "~" in ttok or "-" in ttok:
 				continue
-			if int(tok["from"]) == f and int(tok["to"]) == t and parent.attrib["symbol"] == tok["sym"]:
-					assert len(tok["wid"].split()) == 1
-					return [[tok["wid"],parent.attrib["symbol"]]]
+			if tf == f and tt == t and psym == tsym:
+				assert len(twid.split()) == 1
+				return [[twid,psym]]
 
 	#only ~
 	for token in tokens:
 		for tok in token:
-			if "~" not in tok["tok"]:
+			tf = int(tok["from"])
+			tt = int(tok["to"])
+			ttok = tok["tok"]
+
+			tsym = tok["sym"]
+			twid = tok["wid"]
+			if "~" not in ttok or "-" in ttok:
 				continue
-			if "-" in tok["tok"]:
-				continue
-			
-			if int(tok["from"]) == f and int(tok["to"]) == t and tok["sym"] in [parent.attrib["symbol"].replace("_","~"), parent.attrib["symbol"].replace("-","~"), parent.attrib["symbol"]]:
-				if len(tok["tok"].split("~")) == len(parent.attrib["symbol"].split("_")):
-					return zip(tok["wid"].split(), parent.attrib["symbol"].split("_"))
-				#special case: some synnet connected with "~" not "_"
-				if len(tok["tok"].split("~")) == len(parent.attrib["symbol"].split("~")):
-					return zip(tok["wid"].split(), parent.attrib["symbol"].split("~"))
-				#special case: some synnect connected with "-" not "_"
-				if len(tok["tok"].split("~")) == len(parent.attrib["symbol"].split("-")):
-					return zip(tok["wid"].split(), parent.attrib["symbol"].split("-"))
+			if tf == f and tt == t and tsym == psym.replace("_","~"):
+				if len(ttok.split("~")) == len(re.split("_", psym)):
+					return zip(twid.split(), re.split("_", psym))
+				if len(ttok.split("~")) == len(re.split("~", psym)):
+					return zip(twid.split(), re.split("~", psym))
+				if len(ttok.split("~")) == len(re.split("-", psym)):
+					return zip(twid.split(), re.split("-", psym))
+	
 	#only -
 	for token in tokens:
 		for tok in token:
-			if "~" in tok["tok"]:
+			tf = int(tok["from"])
+			tt = int(tok["to"])
+			ttok = tok["tok"]
+
+			tsym = tok["sym"]
+			twid = tok["wid"]
+			if "~" in ttok or "-" not in ttok:
 				continue
-			if "-" not in tok["tok"]:
-				continue
-			if int(tok["from"]) == f and int(tok["to"]) == t and tok["sym"] in [parent.attrib["symbol"].replace("_","~"), parent.attrib["symbol"].replace("-","~"), parent.attrib["symbol"]]:
-				if len(tok["tok"].split("-")) == len(parent.attrib["symbol"].split("_")):
-					assert len(tok["wid"].split()) == 1
-					return [[tok["wid"], parent.attrib["symbol"]]]
-				if len(tok["tok"].split("-")) == len(parent.attrib["symbol"].split("-")):
-					assert len(tok["wid"].split()) == 1
-					return [[tok["wid"], parent.attrib["symbol"]]]
+			if tf == f and tt == t and tsym in [psym.replace("-","~"), psym]:
+				if len(ttok.split("-")) == len(re.split("_", psym)):
+					return [[twid, psym]]
+				if len(ttok.split("-")) == len(re.split("-", psym)):
+					return [[twid, psym]]
+				if len(ttok.split("-")) == len(re.split("~", psym)):
+					return [[twid, psym]]
+	
 	#both - and ~
 	for token in tokens:
 		for tok in token:
-			if "~" not in tok["tok"] and "-" not in tok["tok"]:
-				pass
-			if int(tok["from"]) == f and int(tok["to"]) == t and parent.attrib["symbol"] == tok["sym"].replace("~","_"):
+			tf = int(tok["from"])
+			tt = int(tok["to"])
+			ttok = tok["tok"]
 
-				if len(re.split("~|-", tok["tok"])) == len(parent.attrib["symbol"].split("_")):
-					assert len(tok["tok"].split("~")) == len(tok["wid"].split())
+			tsym = tok["sym"]
+			twid = tok["wid"]
+			if "~" not in ttok and "-" not in ttok:
+				continue
+
+			post_psym = psym.replace("_","~")
+			if tf == f and tt == t and tsym == post_psym:
+				#tsym and post_psym only have - and "~"
+				if len(re.split("~|-", ttok)) == len(re.split("~|-", post_psym)):
 					res = []
-					wid = tok["wid"].split()
+					wid = twid.split() # only be splitted on "~"
 					i = 0
-					sym = parent.attrib["symbol"].split("_")
+					sym = re.split("~|-", post_psym) # be splitted on "~" and "-"
 					j = 1
 					pj = 0
-					for t in tok["tok"]:
+					for t in ttok:
 						if t == "~":
-							res.append([wid[i], "_".join(sym[pj:j])])
+							res.append([wid[i], "-".join(sym[pj:j])])
 							i += 1
 							pj = j
+							j += 1
 						if t == "-":
 							j += 1
-					res.append([wid[i], "_".join(sym[pj:])])
+					res.append([wid[i], "-".join(sym[pj:])])
 					return res
-				#special case: some synnect connected with "-" not "_"
-				if len(re.split("~", tok["tok"])) == len(re.split("_", parent.attrib["symbol"])):
-					assert len(tok["tok"].split("~")) == len(tok["wid"].split())
-					return zip(tok["wid"].split(), parent.attrib["symbol"].split("_"))
 
-
-	#skip
-	#No ~ or - 
 	i = 0
 	j = 0
 	while i < len(tokens):
 		j = 0
 		while j < len(tokens[i]):
 			tok = tokens[i][j]
-			if "~" in tok["tok"] or "-" in tok["tok"]:
+			tf = int(tok["from"])
+			tt = int(tok["to"])
+			ttok = tok["tok"]
+			tsym = tok["sym"]
+
+			if "~" in ttok or "-" in ttok:
 				j += 1
 				continue
-			if int(tok["from"]) == f and int(tok["to"]) == t and tok["sym"] in [parent.attrib["symbol"].replace("_","~")]:
-				sym = tok["sym"]
+			if tf == f and tt == t and tsym == psym.replace("_","~"):
+				sym = tsym
 				break
 			j += 1
 		if j != len(tokens[i]):
@@ -214,47 +266,17 @@ def getPred(parent):
 		j += 1
 		while j < len(tokens[i]) and k < len(sym):
 			tok = tokens[i][j]
-			if tok["sym"] == sym[k]:
-				res.append([tok["wid"], sym[k]])
+			tsym = tok["sym"]
+			twid = tok["wid"]
+			if tsym == sym[k]:
+				assert len(twid.split()) == 1
+				res.append([twid, sym[k]])
 				k += 1
 			j += 1
 		if k == len(sym):
 			return res
 
 	return ""
-	"""
-	i = 0
-	j = 0
-	sym = ""
-	while i < len(tokens):
-		j = 0
-		while j < len(tokens[i]):
-			tok = tokens[i][j]
-			if int(tok["from"]) == f and int(tok["to"]) == t and tok["sym"].replace("~","_") == parent.attrib["symbol"]:
-				sym = tok["sym"]
-				break
-			j += 1
-		if j != len(tokens[i]):
-			break
-		i += 1
-
-	if i == len(tokens):
-		return ""
-
-	sym = sym.split("~")
-	#print sym
-	#print tokens[i]
-	re = [[tokens[i][j]["wid"], sym[0]]]
-	k = 1
-	while j < len(tokens[i]) and k < len(sym):
-		tok = tokens[i][j]
-		if tok["sym"] == sym[k]:
-			re.append([tok["wid"], sym[k]])
-			k += 1
-		j += 1
-	assert k == len(sym)
-	return re
-	"""
 
 
 def getRel(parent):

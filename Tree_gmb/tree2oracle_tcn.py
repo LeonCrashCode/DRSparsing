@@ -216,7 +216,10 @@ if __name__ == "__main__":
 			continue
 		illform.append(line.split()[-2])
 	"""
-	if os.path.exists("manual_correct2"):
+        flag = False
+        if len(sys.argv) > 2:
+            flag = True
+	if flag and os.path.exists("manual_correct2"):
 		for line in open("manual_correct2"):
 			line = line.strip()
 			if line == "" or line[0] == "#":
@@ -248,6 +251,7 @@ if __name__ == "__main__":
 		else:
 			if line[0] == "#":
 				filename = line.split()[-1]
+                                #print filename
 				continue
 			lines.append(line)
 	out_input.close()
