@@ -67,7 +67,9 @@ def show(node, label):
 		#	print key+"("
 		#else:
 		#	print key
-		print key, node[key]
+                #if node[key] <= 2:
+                if True:
+		    print key#, node[key]
 	print "###"
 	
 if __name__ == "__main__":

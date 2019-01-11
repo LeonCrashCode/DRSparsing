@@ -216,11 +216,8 @@ if __name__ == "__main__":
 			continue
 		illform.append(line.split()[-2])
 	"""
-        flag = False
-        if len(sys.argv) > 2:
-            flag = True
-	if flag and os.path.exists("manual_correct2"):
-		for line in open("manual_correct2"):
+	if len(sys.argv) == 3 and os.path.exists(sys.argv[2]):
+		for line in open(sys.argv[2]):
 			line = line.strip()
 			if line == "" or line[0] == "#":
 				continue
