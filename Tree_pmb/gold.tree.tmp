@@ -1,0 +1,5 @@
+### xml2tree_enhanced.py gold/p02/d0712/en.drs.xml
+Kraft sold Celestial Seasonings .
+TREE
+DRS-0( company( B1 X1 n.01 ) Named( B1 X1 $0 [kraft] ) time( B0 T1 n.08 ) comp_TPR( B0 T1 "now" ) $1[sell]( B0 E1 v.01 ) Time( B0 E1 T1 ) Theme( B0 E1 X2 ) Agent( B0 E1 X1 ) company( B2 X2 n.01 ) Named( B2 X2 $2 $3 [celestial~seasonings] ) )
+
