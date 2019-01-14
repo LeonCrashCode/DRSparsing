@@ -85,8 +85,8 @@ def tree2ground(tree):
 			elif args.type == "span":
 				cons = []
 				for index in indexs:
-					cons.append('\"'+words[stack[-1]][int(index[1:])]+'\"')
-				n_tree.append(args.connect.join(cons))
+					cons.append(words[stack[-1]][int(index[1:])])
+				n_tree.append('\"'+args.connect.join(cons)+'\"')
 			else:
 				assert False, "unrecognized option for --type"
 			n_tree.append(")")
@@ -112,7 +112,7 @@ def tree2ground(tree):
 					cons = []
 					for index in indexs:
 						cons.append(words[stack[-1]][int(index[1:])])
-					n_tree.append(args.name_span_connect.join(cons)+"(")
+					n_tree.append(args.connect.join(cons)+"(")
 				else:
 					assert False, "unrecognized option for --type"
 				n_tree.append(tree[i+1])
@@ -130,7 +130,7 @@ def tree2ground(tree):
 
 		elif t[-1] == "(":
 			idx = tree[i:].index(")")
-			#print tree[i:i+idx+1]
+			print tree[i:i+idx+1]
 			#Rel( B0 X1 X2 )
 			if idx == 4 and all([is_variable(x) for x in tree[i+1:i+idx]]):
 				assert stack[-1] != -1
@@ -141,7 +141,7 @@ def tree2ground(tree):
 					n_tree.append(t)
 				n_tree += tree[i+1:i+idx]
 			#Rel( B0 X1 ... )
-			elif idx == 4 and all([is_variable(x) for x in tree[i+1:i+3]]):
+			elif idx >= 4 and all([is_variable(x) for x in tree[i+1:i+3]]):
 				assert stack[-1] != -1
 				if re.match("^\$[0-9]+\[.+\]\($", t):
 					j = t.index("[")
@@ -152,23 +152,25 @@ def tree2ground(tree):
 				
 				indexs = []
 				exps = []
-				for item in tree[i+3:]:
+				for item in tree[i+3:i+idx]:
 					if re.match("^\$[0-9]+$", item):
 						indexs.append(item)
 					elif item[0] == "[" and item[-1] == "]":
-						exps.append(item)
+						exps.append(item[1:-1])
 					else:
 						assert False, "unrecognized format"
 
 				if args.type == "exp":
-					n_tree.append(args.connect.join(exps))
+					n_tree.append('\"'+args.connect.join(exps)+'\"')
 				elif args.type == "span_index":
-					n_tree.append(args.connect.join(indexs))
+					n_tree.append('\"'+args.connect.join(indexs)+'\"')
 				elif args.type == "span":
 					cons = []
 					for index in indexs:
 						cons.append(words[stack[-1]][int(index[1:])])
-					n_tree.append(args.name_span_connect.join(cons))
+					n_tree.append('\"'+args.connect.join(cons)+'\"')
+				else:
+					assert False, "unrecognized option for --type"
 			#CONTINUATION( K1 K2 )
 			elif idx == 3 and all([v_p.match(x) for x in tree[i+1:i+idx]]):
 				assert t.isupper()
