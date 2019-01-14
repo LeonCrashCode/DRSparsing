@@ -39,6 +39,7 @@ def tree2ground(tree):
 	i = 0
 	while i < len(tree):
 		t = tree[i]
+		#print t
 		if re.match("^B[0-9]+$", t):
 			n_tree.append(t)
 			i += 1
@@ -99,11 +100,11 @@ def tree2ground(tree):
 				indexs = [t[0:j]]
 				exps = [t[j+1:-2]]
 				while lookahead(tree[i+idx+1:], tree[i+1], tree[i+2], tree[i+3]):
-					t = tree[idx+1]
+					t = tree[i+idx+1]
 					j = t.index("[")
 					indexs.append(t[0:j])
 					exps.append(t[j+1:-2])
-					idx += tree[i+idx+1:].index(")")
+					idx += tree[i+idx+1:].index(")") + 1
 				if args.type == "exp":
 					n_tree.append(args.connect.join(exps)+"(")
 				elif args.type == "span_index":
@@ -130,7 +131,7 @@ def tree2ground(tree):
 
 		elif t[-1] == "(":
 			idx = tree[i:].index(")")
-			print tree[i:i+idx+1]
+			#print tree[i:i+idx+1]
 			#Rel( B0 X1 X2 )
 			if idx == 4 and all([is_variable(x) for x in tree[i+1:i+idx]]):
 				assert stack[-1] != -1
